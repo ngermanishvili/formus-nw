@@ -1,12 +1,16 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import addMapUrlToProjects from "../db/migrations/add-map-url-to-projects";
 
 export async function POST(request) {
     try {
         const { operation } = await request.json();
         console.log("Migration operation requested:", operation);
 
-        if (operation === "add_display_order") {
+        if (operation === "add_map_url_to_projects") {
+            const result = await addMapUrlToProjects();
+            return NextResponse.json(result);
+        } else if (operation === "add_display_order") {
             // Check if display_order column already exists
             const result = await db.query(`
                 SELECT * FROM information_schema.columns 

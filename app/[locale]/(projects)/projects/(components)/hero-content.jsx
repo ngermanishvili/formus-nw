@@ -92,6 +92,7 @@ const ProjectContent = ({ id }) => {
               currentLang === "ge"
                 ? project.second_section_description_ge
                 : project.second_section_description_en,
+            map_url: project.map_url || null,
           });
         }
       } catch (error) {
@@ -159,9 +160,12 @@ const ProjectContent = ({ id }) => {
     if (galleryData?.image_url) {
       try {
         // სცადეთ პარსინგი, ჯერ გავასუფთაოთ ყველა გარე კავიჭისგან
-        const cleanJsonString = galleryData.image_url.replace(/^["'](.*)["']$/, '$1');
+        const cleanJsonString = galleryData.image_url.replace(
+          /^["'](.*)["']$/,
+          "$1"
+        );
         console.log("Attempting to parse gallery JSON:", cleanJsonString);
-        
+
         let galleryImages;
         try {
           // მცდელობა JSON პარსინგის
@@ -169,35 +173,45 @@ const ProjectContent = ({ id }) => {
         } catch (e) {
           console.error("JSON parsing error, trying alternative method:", e);
           // თუ ვერ დაპარსა, შევეცადოთ სტრინგიდან მასივის მიღებას რეგულარული გამოსახულებით
-          const urlMatches = galleryData.image_url.match(/(https?:\/\/[^"'\s]+)/g);
+          const urlMatches = galleryData.image_url.match(
+            /(https?:\/\/[^"'\s]+)/g
+          );
           if (urlMatches && urlMatches.length > 0) {
             galleryImages = urlMatches;
           }
         }
-        
+
         if (Array.isArray(galleryImages) && galleryImages.length > 0) {
           console.log("Successfully parsed gallery images:", galleryImages);
           return galleryImages.map((url, index) => {
             // გავასუფთაოთ ნებისმიერი კავიჭებისგან და სხვა არასასურველი სიმბოლოებისგან
-            const cleanUrl = typeof url === 'string' ? url.replace(/['"]/g, '') : '';
+            const cleanUrl =
+              typeof url === "string" ? url.replace(/['"]/g, "") : "";
             return {
               img: cleanUrl,
-              alt: `${projectData?.title || 'Project'} View ${index + 1}`,
+              alt: `${projectData?.title || "Project"} View ${index + 1}`,
             };
           });
-        } else if (typeof galleryData.image_url === 'string' && galleryData.image_url.includes('http')) {
+        } else if (
+          typeof galleryData.image_url === "string" &&
+          galleryData.image_url.includes("http")
+        ) {
           // თუ ერთი URL-ია სტრინგში
-          const cleanUrl = galleryData.image_url.replace(/['"]/g, '');
+          const cleanUrl = galleryData.image_url.replace(/['"]/g, "");
           console.log("Single URL detected in gallery:", cleanUrl);
           return [
             {
               img: cleanUrl,
-              alt: `${projectData?.title || 'Project'} View`,
-            }
+              alt: `${projectData?.title || "Project"} View`,
+            },
           ];
         }
       } catch (error) {
-        console.error("Error processing gallery images:", error, galleryData.image_url);
+        console.error(
+          "Error processing gallery images:",
+          error,
+          galleryData.image_url
+        );
       }
     }
 
@@ -394,21 +408,6 @@ const ProjectContent = ({ id }) => {
       <section className="relative bg-background">
         <InteractiveSection projectData={projectData} projectId={id} />
       </section>
-
-      {/* Add map if available */}
-      {mapsUrls[id] && (
-        <div className="w-full h-[600px] mt-8">
-          <iframe
-            src={mapsUrls[id]}
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen=""
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-        </div>
-      )}
     </>
   );
 };

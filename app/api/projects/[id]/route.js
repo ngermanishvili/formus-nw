@@ -70,8 +70,9 @@ export async function PUT(request, { params }) {
                 second_section_description_ge = $14,
                 display_order = $15,
                 is_active = $16,
+                map_url = $17,
                 updated_at = NOW()
-            WHERE id = $17
+            WHERE id = $18
             RETURNING *
         `, [
             data.title_en,
@@ -90,6 +91,7 @@ export async function PUT(request, { params }) {
             data.second_section_description_ge,
             data.display_order || null,
             data.is_active || false,
+            data.map_url || null,
             id
         ]);
 

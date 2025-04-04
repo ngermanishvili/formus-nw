@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import ProjectContent from "../../(components)/hero-content";
 import AboutProject from "../../(components)/about-project";
+import ProjectMap from "@/components/project/project-map";
 
 export default function Page({ params }) {
   const [isMobile, setIsMobile] = useState(false);
@@ -24,6 +25,7 @@ export default function Page({ params }) {
         <ProjectContent id={params.id} />
 
         <AboutProject projectId={params.id} />
+        <ProjectMap />
       </main>
     </>
   );

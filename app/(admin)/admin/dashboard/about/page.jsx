@@ -12,18 +12,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { Edit, ImagePlus, Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 
 // სურათის ატვირთვის კომპონენტი
 const ImageUpload = ({ value, onChange }) => {
@@ -73,22 +68,8 @@ const ImageUpload = ({ value, onChange }) => {
 export default function AboutPage() {
   const [loading, setLoading] = useState(false);
   const [aboutData, setAboutData] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
-
-  const [formData, setFormData] = useState({
-    title_ge: "",
-    title_en: "",
-    description_ge: "",
-    description_en: "",
-    image_url: "",
-    map_url: "",
-    address_ge: "",
-    address_en: "",
-    phone: "",
-    email: "",
-  });
+  const router = useRouter();
 
   useEffect(() => {
     fetchAboutData();
@@ -110,48 +91,8 @@ export default function AboutPage() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      // Create a new formData object with the updated image_url
-      const updatedFormData = { ...formData };
-
-      const res = await fetch(`/api/about/${selectedItem.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedFormData),
-      });
-
-      const data = await res.json();
-
-      if (data.status === "success") {
-        toast({
-          title: "წარმატება",
-          description: "ინფორმაცია განახლდა",
-        });
-        fetchAboutData();
-        setIsDialogOpen(false);
-        setSelectedItem(null);
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "შეცდომა",
-        description: "განახლება ვერ მოხერხდა",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleEdit = (item) => {
-    setSelectedItem(item);
-    setFormData(item);
-    setIsDialogOpen(true);
+    router.push(`/admin/dashboard/about/${item.id}/edit`);
   };
 
   return (
@@ -220,154 +161,6 @@ export default function AboutPage() {
           </TableBody>
         </Table>
       </div>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>ინფორმაციის რედაქტირება</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <ImageUpload
-              value={formData.image_url}
-              onChange={(url) => setFormData({ ...formData, image_url: url })}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label className="block text-sm font-medium mb-1">
-                  სათაური (ქართ.)
-                </Label>
-                <Input
-                  value={formData.title_ge}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title_ge: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  სათაური (ინგლ.)
-                </label>
-                <Input
-                  value={formData.title_en}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title_en: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-1">
-                  აღწერა (ქართ.)
-                </label>
-                <Textarea
-                  value={formData.description_ge}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description_ge: e.target.value })
-                  }
-                  required
-                  rows={4}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-1">
-                  აღწერა (ინგლ.)
-                </label>
-                <Textarea
-                  value={formData.description_en}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description_en: e.target.value })
-                  }
-                  required
-                  rows={4}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  რუკის URL
-                </label>
-                <Input
-                  value={formData.map_url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, map_url: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  ტელეფონი
-                </label>
-                <Input
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  მისამართი (ქართ.)
-                </label>
-                <Input
-                  value={formData.address_ge}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address_ge: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  მისამართი (ინგლ.)
-                </label>
-                <Input
-                  value={formData.address_en}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address_en: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  ელ-ფოსტა
-                </label>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-                disabled={loading}
-              >
-                გაუქმება
-              </Button>
-              <Button
-                type="submit"
-                disabled={loading}
-                className="min-w-[150px]"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    იტვირთება...
-                  </>
-                ) : (
-                  "შენახვა"
-                )}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

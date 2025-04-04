@@ -10,6 +10,7 @@ import { firaGO } from "./fonts";
 import Footer1 from "@/components/footers/Footer1";
 import Header5 from "@/components/headers/Header5";
 import Footer5 from "@/components/footers/Footer5";
+import ProjectMap from "@/components/project/project-map";
 
 export default function LocaleLayout({ children, params: { locale } }) {
   const [messages, setMessages] = useState({});
@@ -44,6 +45,7 @@ export default function LocaleLayout({ children, params: { locale } }) {
         {children}
         <StickySocial locale={locale} />
         <Toaster />
+        <ProjectMap />
         <Footer5 />
       </div>
     </NextIntlClientProvider>

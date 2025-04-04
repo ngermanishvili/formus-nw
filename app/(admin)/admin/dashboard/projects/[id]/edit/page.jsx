@@ -258,6 +258,7 @@ export default function EditProject({ params }) {
     second_section_description_ge: "",
     display_order: "",
     is_active: false,
+    map_url: "",
   });
 
   useEffect(() => {
@@ -674,6 +675,28 @@ export default function EditProject({ params }) {
               <Label className="text-base font-semibold mb-4 block">
                 პროექტის პარამეტრები
               </Label>
+
+              {/* Map URL */}
+              <div className="mb-6">
+                <Label className="text-sm font-medium mb-2 block">
+                  რუკის URL (Google Maps iframe)
+                </Label>
+                <Input
+                  placeholder="ჩასვით Google Maps iframe URL"
+                  value={formData.map_url || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      map_url: e.target.value,
+                    }))
+                  }
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  გთხოვთ, ჩასვათ Google Maps iframe URL (src ატრიბუტის
+                  მნიშვნელობა)
+                </p>
+              </div>
 
               {/* Position Order */}
               <div className="mb-6">
