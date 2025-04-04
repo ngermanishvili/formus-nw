@@ -93,27 +93,51 @@ export default function SearchForm() {
   };
 
   const handleSearch = () => {
-    // Create query parameters
-    const params = new URLSearchParams();
-
-    // Always include available status
-    params.set("statuses", "available");
-
-    // Add project ID if selected
+    // Create URL based on selected project
     if (searchParams.project) {
-      params.set("projects", searchParams.project);
-    }
+      // If project ID is 1, navigate to homes-list
+      if (searchParams.project === "1") {
+        // Create query parameters
+        const params = new URLSearchParams();
 
-    // Add area range if selected
-    if (searchParams.areaRange) {
-      const [minArea, maxArea] = searchParams.areaRange.split("-");
-      params.set("totalAreaMin", minArea);
-      params.set("totalAreaMax", maxArea);
-    }
+        // First add project ID (order matters)
+        params.set("projects", "1");
 
-    // Create the URL and navigate
-    const url = `/${locale}/homes-list?${params.toString()}`;
-    window.location.href = url;
+        // Then add available status
+        params.set("statuses", "available");
+
+        // Add area range if selected
+        if (searchParams.areaRange) {
+          const [minArea, maxArea] = searchParams.areaRange.split("-");
+          params.set("totalAreaMin", minArea);
+          params.set("totalAreaMax", maxArea);
+        }
+
+        // Create the URL and navigate to homes-list
+        const url = `/${locale}/homes-list?${params.toString()}`;
+        window.location.href = url;
+      } else {
+        // For all other projects, navigate to project details page
+        const url = `/${locale}/projects/${searchParams.project}/-`;
+        window.location.href = url;
+      }
+    } else {
+      // If no project selected, just go to homes-list with available status
+      const params = new URLSearchParams();
+      // Keep same order here as well
+      params.set("projects", "");
+      params.set("statuses", "available");
+
+      // Add area range if selected
+      if (searchParams.areaRange) {
+        const [minArea, maxArea] = searchParams.areaRange.split("-");
+        params.set("totalAreaMin", minArea);
+        params.set("totalAreaMax", maxArea);
+      }
+
+      const url = `/${locale}/homes-list?${params.toString()}`;
+      window.location.href = url;
+    }
   };
 
   return (

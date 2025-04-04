@@ -302,6 +302,48 @@ const FloorFilters = (props) => {
                 </div>
               </FilterButton>
 
+              {/* Search Button for Desktop */}
+              <button
+                onClick={() => {
+                  const queryParams = new URLSearchParams();
+                  if (activeFilters.blocks.length) {
+                    queryParams.set("blocks", activeFilters.blocks.join(","));
+                  }
+                  if (activeFilters.floors.length) {
+                    queryParams.set("floors", activeFilters.floors.join(","));
+                  }
+                  if (activeFilters.statuses.length) {
+                    queryParams.set(
+                      "statuses",
+                      activeFilters.statuses.join(",")
+                    );
+                  }
+                  // Always add available as default status if no status is selected
+                  if (!activeFilters.statuses.length) {
+                    queryParams.set("statuses", "available");
+                  }
+                  router.push(
+                    `/${locale}/homes-list?${queryParams.toString()}`,
+                    { scroll: true }
+                  );
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg
+                         bg-[#FBB200] hover:bg-[#FBB200]/90 text-black
+                         transition-colors duration-200"
+                disabled={activeFiltersCount === 0}
+              >
+                <Search size={18} />
+                <span>{t.search}</span>
+                {activeFiltersCount > 0 && (
+                  <span
+                    className="flex items-center justify-center w-5 h-5 text-xs 
+                              bg-black text-[#FBB200] rounded-full ml-1"
+                  >
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </button>
+
               {activeFiltersCount > 0 && (
                 <Button
                   variant="ghost"
@@ -321,6 +363,7 @@ const FloorFilters = (props) => {
         </div>
       </div>
 
+      {/* Mobile Filter Button */}
       <button
         onClick={() => setIsDrawerOpen(true)}
         className={`relative p-3 rounded-md bg-[#FBB200] hover:bg-[#FBB200]/90 text-black shadow-xl transition-all duration-200 z-0 md:hidden flex items-center gap-2 mr-1 ${
@@ -336,6 +379,38 @@ const FloorFilters = (props) => {
             {activeFiltersCount}
           </span>
         )}
+      </button>
+
+      {/* Mobile Search Button */}
+      <button
+        onClick={() => {
+          const queryParams = new URLSearchParams();
+          if (activeFilters.blocks.length) {
+            queryParams.set("blocks", activeFilters.blocks.join(","));
+          }
+          if (activeFilters.floors.length) {
+            queryParams.set("floors", activeFilters.floors.join(","));
+          }
+          if (activeFilters.statuses.length) {
+            queryParams.set("statuses", activeFilters.statuses.join(","));
+          }
+          // Always add available as default status if no status is selected
+          if (!activeFilters.statuses.length) {
+            queryParams.set("statuses", "available");
+          }
+          router.push(`/${locale}/homes-list?${queryParams.toString()}`, {
+            scroll: true,
+          });
+        }}
+        className={`relative p-3 rounded-md bg-[#FBB200] hover:bg-[#FBB200]/90 text-black shadow-xl transition-all duration-200 z-0 md:hidden flex items-center gap-2 mr-1 ${
+          pathname.includes("/choose-apartment")
+            ? "absolute mt-[64%] right-0"
+            : "bottom-6 right-6"
+        }`}
+        disabled={activeFiltersCount === 0}
+      >
+        <Search size={20} />
+        <span className="font-medium">{t.search}</span>
       </button>
 
       {isDrawerOpen && (
@@ -430,6 +505,37 @@ const FloorFilters = (props) => {
                     {t.clear}
                   </Button>
                 )}
+
+                {/* Search Button in Drawer */}
+                <Button
+                  onClick={() => {
+                    const queryParams = new URLSearchParams();
+                    if (activeFilters.blocks.length) {
+                      queryParams.set("blocks", activeFilters.blocks.join(","));
+                    }
+                    if (activeFilters.floors.length) {
+                      queryParams.set("floors", activeFilters.floors.join(","));
+                    }
+                    if (activeFilters.statuses.length) {
+                      queryParams.set(
+                        "statuses",
+                        activeFilters.statuses.join(",")
+                      );
+                    }
+                    // Always add available as default status if no status is selected
+                    if (!activeFilters.statuses.length) {
+                      queryParams.set("statuses", "available");
+                    }
+                    router.push(
+                      `/${locale}/homes-list?${queryParams.toString()}`,
+                      { scroll: true }
+                    );
+                  }}
+                  className="flex-1 bg-[#FBB200] hover:bg-[#FBB200]/90 text-black"
+                  disabled={activeFiltersCount === 0}
+                >
+                  {t.search}
+                </Button>
               </div>
             </div>
           </div>
