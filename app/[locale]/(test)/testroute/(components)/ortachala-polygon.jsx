@@ -2,7 +2,7 @@
 import React, { useState, memo, useEffect } from "react";
 import Header1 from "@/components/headers/Header1";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { CldImage } from "next-cloudinary";
 import { Minus, Plus, RotateCcw } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
@@ -151,6 +151,8 @@ const InfoCard = memo(({ data, position }) => {
   if (!data) return null;
 
   const isMobile = typeof window !== "undefined" && window.innerWidth <= 1024;
+  const pathname = usePathname();
+  const isGeorgian = pathname.includes("/ka/");
 
   if (isMobile) {
     return null;
@@ -168,13 +170,17 @@ const InfoCard = memo(({ data, position }) => {
     >
       <div className="flex items-center justify-center gap-4">
         <div>
-          <div className="text-[10px] text-black/60">Floor</div>
+          <div className="text-[10px] text-black/60">
+            {isGeorgian ? "სართული" : "Floor"}
+          </div>
           <div className="text-5xl font-bold text-black">{data.floor}</div>
         </div>
 
         <div className="w-px h-[50px] bg-black/20" />
         <div>
-          <div className="text-[10px] text-black/60">Block</div>
+          <div className="text-[10px] text-black/60">
+            {isGeorgian ? "ბლოკი" : "Block"}
+          </div>
           <div className="text-5xl  font-bold text-black">{data.block_id}</div>
         </div>
       </div>
