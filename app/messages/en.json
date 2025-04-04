@@ -1,0 +1,55 @@
+{
+  "HomePage": {
+    "title": "Home Page",
+    "hero": {
+      "title": "Hero Title",
+      "description": "Description"
+    },
+    "about": "About Us"
+  },
+  "Navigation": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "services": "Services",
+    "blog": "Blog",
+    "media": "Media",
+    "projects": "Projects",
+    "chooseApartment": "Choose Apartment"
+  },
+  "faq": {
+    "title": "For building",
+    "description": "The construction and development company has been operating steadily in the Georgian market for 10 years. As a result of new challenges and opportunities,  has transformed into This new identity marks a new chapter for the company, aiming to strengthen its position in the market even further.",
+    "button": "Click me"
+  },
+  "SearchForm": {
+    "project": "Project",
+    "location": "Location",
+    "type": "Type",
+    "chooseType": "Choose Type",
+    "detailed": "Detailed",
+    "search": "Search",
+    "soon": "Soon",
+    "apartment": "Apartment",
+    "commercial": "Commercial Space",
+    "ortachalaHills": "Ortachala Hills",
+    "tbilisi": "Tbilisi",
+    "batumi": "Batumi",
+    "area": "Area"
+  },
+  "Breadcrumb": {
+    "home": "Home",
+    "blog": "Blog"
+  },
+  "Footer": {
+    "address": "Address",
+    "location": "Tbilisi, Georgia",
+    "callOffice": "Call Our Office",
+    "workingHours": "Working Hours",
+    "schedule": "Mon-Sat: 09:00 - 17:00 - Sun: Closed",
+    "language": "English",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "cookies": "Cookie Policy"
+  }
+}
