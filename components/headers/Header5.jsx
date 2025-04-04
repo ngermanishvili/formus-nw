@@ -102,13 +102,20 @@ export default function Header5() {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get("scrollToApartments") === "true") {
         setTimeout(() => {
-          window.scrollTo({
-            top: document.documentElement.scrollHeight * 0.8,
-            behavior: "smooth",
-          });
+          const apartmentsSection =
+            document.getElementById("apartments-section");
+          if (apartmentsSection) {
+            apartmentsSection.scrollIntoView({ behavior: "smooth" });
+          } else {
+            // Fallback if element isn't found
+            window.scrollTo({
+              top: document.documentElement.scrollHeight * 0.4,
+              behavior: "smooth",
+            });
+          }
 
           router.replace(`/${locale}`);
-        }, 500);
+        }, 1500);
       }
     }
 
