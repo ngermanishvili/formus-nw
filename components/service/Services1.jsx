@@ -1,9 +1,34 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
+import NextImage from "next/image";
+import { CldImage } from "next-cloudinary";
 import { Loader2, X } from "lucide-react";
 import { useLocale } from "next-intl";
+
+// ფუნქცია cloudinary URL-ის ამოსაცნობად
+const isCloudinaryUrl = (url) => {
+  return (
+    url &&
+    (url.includes("cloudinary.com") || url.includes("res.cloudinary.com"))
+  );
+};
+
+// cloudinary-ის public ID-ის მიღება URL-დან
+const getCloudinaryId = (url) => {
+  if (!url) return null;
+
+  try {
+    // ამოიღებს პუბლიკ აიდის
+    // მაგ: 'https://res.cloudinary.com/formus/image/upload/v1678912345/projects/example.jpg'
+    // გადააქცევს: 'projects/example'
+    const matches = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
+    return matches && matches[1] ? matches[1] : url;
+  } catch (e) {
+    console.error("Error extracting Cloudinary ID:", e);
+    return null;
+  }
+};
 
 export default function Services1() {
   const [projects, setProjects] = useState([]);
@@ -53,6 +78,27 @@ export default function Services1() {
 
     fetchProjects();
   }, []);
+
+  // პროაქტიულად დავამატოთ მეთოდი სურათების წინასწარ ჩატვირთვისთვის
+  useEffect(() => {
+    if (projects.length > 0 && typeof window !== "undefined") {
+      // წინასწარ ჩავტვირთოთ პირველი 5 პროექტის სურათები
+      projects.slice(0, 5).forEach((project) => {
+        if (project && project.main_image_url) {
+          const imgElement = document.createElement("img");
+          imgElement.src = project.main_image_url;
+          imgElement.style.display = "none";
+          imgElement.onload = () => {
+            // სურათი ჩაიტვირთა, შეგვიძლია წავშალოთ ელემენტი
+            if (imgElement.parentNode) {
+              imgElement.parentNode.removeChild(imgElement);
+            }
+          };
+          document.body.appendChild(imgElement);
+        }
+      });
+    }
+  }, [projects]);
 
   const getProjectAddress = (project) => {
     if (project.id === 1) {
@@ -108,10 +154,18 @@ export default function Services1() {
   }, [selectedImage]);
 
   const ImageModal = ({ imageUrl, onClose }) => {
+    const [isImageLoading, setIsImageLoading] = useState(true);
+    const isCloudinary = isCloudinaryUrl(imageUrl);
+    const cloudinaryId = isCloudinary ? getCloudinaryId(imageUrl) : null;
+
     const handleOverlayClick = (e) => {
       if (e.target === e.currentTarget) {
         onClose();
       }
+    };
+
+    const handleImageLoad = () => {
+      setIsImageLoading(false);
     };
 
     return (
@@ -135,13 +189,36 @@ export default function Services1() {
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          <Image
-            src={imageUrl}
-            alt="Project Image"
-            fill
-            className="object-contain"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-          />
+          {isImageLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <Loader2 className="h-12 w-12 animate-spin text-white" />
+            </div>
+          )}
+
+          {isCloudinary && cloudinaryId ? (
+            <CldImage
+              src={cloudinaryId}
+              width={1200}
+              height={900}
+              crop="fit"
+              quality={75}
+              loading="eager"
+              className="w-full h-full object-contain"
+              alt="Project Image"
+              onLoad={handleImageLoad}
+            />
+          ) : (
+            <NextImage
+              src={imageUrl}
+              alt="Project Image"
+              fill
+              className="object-contain"
+              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 80vw, 1200px"
+              priority
+              quality={70}
+              onLoad={handleImageLoad}
+            />
+          )}
         </div>
       </div>
     );
@@ -183,8 +260,19 @@ export default function Services1() {
     <section className="section pt-60">
       <div className="container-sub">
         <div className="row">
-          {projects.map(
-            (project) =>
+          {projects.map((project, index) => {
+            const imageUrl =
+              project?.main_image_url || "/placeholder-image.jpg";
+            const isCloudinary = isCloudinaryUrl(imageUrl);
+            const cloudinaryId = isCloudinary
+              ? getCloudinaryId(imageUrl)
+              : null;
+            const altText =
+              currentLang === "ge"
+                ? project?.title_ge || project?.title || "პროექტის სურათი"
+                : project?.title_en || project?.title || "Project image";
+
+            return (
               project && (
                 <div
                   key={project.id || Math.random()}
@@ -210,31 +298,40 @@ export default function Services1() {
                       className="cardImage overflow-hidden"
                       style={{ maxHeight: "280px" }}
                     >
-                      <Image
-                        width={300}
-                        height={280}
-                        style={{
-                          height: "280px",
-                          objectFit: "cover",
-                        }}
-                        src={project.main_image_url || "/placeholder-image.jpg"}
-                        alt={
-                          currentLang === "ge"
-                            ? project.title_ge ||
-                              project.title ||
-                              "პროექტის სურათი"
-                            : project.title_en ||
-                              project.title ||
-                              "Project image"
-                        }
-                        className="transition-transform duration-500 group-hover:scale-105"
-                        priority
-                      />
+                      {isCloudinary && cloudinaryId ? (
+                        <CldImage
+                          src={cloudinaryId}
+                          width={300}
+                          height={280}
+                          crop="fill"
+                          gravity="auto"
+                          quality={75}
+                          loading={index < 6 ? "eager" : "lazy"}
+                          className="transition-transform duration-500 group-hover:scale-105 h-[280px] object-cover w-full"
+                          alt={altText}
+                        />
+                      ) : (
+                        <NextImage
+                          width={300}
+                          height={280}
+                          style={{
+                            height: "280px",
+                            objectFit: "cover",
+                          }}
+                          src={imageUrl}
+                          alt={altText}
+                          className="transition-transform duration-500 group-hover:scale-105"
+                          priority={index < 6}
+                          loading={index < 6 ? "eager" : "lazy"}
+                          quality={60}
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
               )
-          )}
+            );
+          })}
         </div>
       </div>
 
