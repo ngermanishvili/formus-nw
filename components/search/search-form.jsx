@@ -51,7 +51,7 @@ export default function SearchForm() {
     { value: "80-100", label: `80-100 ${areaUnit}` },
     { value: "100-120", label: `100-120 ${areaUnit}` },
     { value: "120-150", label: `120-150 ${areaUnit}` },
-    { value: "150-1000", label: `150+ ${areaUnit}` },
+    { value: "150-1000", label: `>150 ${areaUnit}` },
   ];
 
   const [searchParams, setSearchParams] = useState({
