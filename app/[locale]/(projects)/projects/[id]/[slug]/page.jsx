@@ -25,7 +25,7 @@ export default function Page({ params }) {
         <ProjectContent id={params.id} />
 
         <AboutProject projectId={params.id} />
-        <ProjectMap />
+        {/* <ProjectMap /> */}
       </main>
     </>
   );
