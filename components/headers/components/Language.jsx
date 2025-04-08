@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { languages } from "@/data/languages";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -33,8 +33,12 @@ export default function Language() {
       // Get path without current language prefix
       const pathWithoutLang = getPathWithoutCurrentLang(pathname);
 
-      // Construct new path with new language code
-      const newPath = `/${code}${pathWithoutLang}`;
+      // Get the current URL to extract query parameters
+      const currentUrl = new URL(window.location.href);
+      const queryString = currentUrl.search;
+
+      // Construct new path with new language code and preserve query parameters
+      const newPath = `/${code}${pathWithoutLang}${queryString}`;
 
       // Use router.push to navigate
       await router.push(newPath);

@@ -113,7 +113,7 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
     },
     {
       value: "150-1000",
-      label: pathname === "/ka/homes-list" ? "150+ მ²" : "150+ m²",
+      label: pathname === "/ka/homes-list" ? ">150 მ²" : ">150 m²",
     },
   ];
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

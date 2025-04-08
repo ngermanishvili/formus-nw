@@ -132,7 +132,13 @@ export default function Header5() {
 
   const toggleLanguage = () => {
     const newLocale = locale === "ka" ? "en" : "ka";
-    router.push(`/${newLocale}${pathname.replace(`/${locale}`, "")}`);
+    // Get the current URL to extract query parameters
+    const currentUrl = new URL(window.location.href);
+    const queryString = currentUrl.search;
+    // Preserve query parameters when switching languages
+    router.push(
+      `/${newLocale}${pathname.replace(`/${locale}`, "")}${queryString}`
+    );
   };
 
   return (

@@ -30,7 +30,11 @@ const MobileHeader = ({ routes, languageNames }) => {
     if (pathname === `/${locale}`) return `/${targetLocale}`;
     const segments = pathname.split("/").filter((segment) => segment !== "");
     if (segments[0] === locale) segments.shift();
-    return `/${targetLocale}/${segments.join("/")}`;
+    // Get the current URL to extract query parameters
+    const currentUrl = new URL(window.location.href);
+    const queryString = currentUrl.search;
+    // Preserve query parameters when switching languages
+    return `/${targetLocale}/${segments.join("/")}${queryString}`;
   };
 
   const toggleLanguage = () => {
