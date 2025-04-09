@@ -26,7 +26,7 @@ const ContactModal = ({ isOpen, setIsOpen }) => {
       ka: "ტელ. ნომერი",
     },
     terms: {
-      en: "I have read and agree to the terms and conditions.",
+      en: "I have read and agree to the terms and conditions",
       ka: "გავეცანი და ვეთანხმები წესებს და პირობებს",
     },
     marketing: {
