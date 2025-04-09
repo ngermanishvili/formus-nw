@@ -65,7 +65,7 @@ export default function AdminPanel() {
   ];
 
   const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState("default");
+  const [selectedProject, setSelectedProject] = useState("1");
   const [blocks, setBlocks] = useState([]);
   const [selectedBlock, setSelectedBlock] = useState("all");
   const [apartments, setApartments] = useState([]);
@@ -90,7 +90,7 @@ export default function AdminPanel() {
     balcony_area: "",
     balcony2_area: "",
     status: "available",
-    project_id: "default",
+    project_id: "1",
   });
 
   // Fetch projects
@@ -100,19 +100,12 @@ export default function AdminPanel() {
       .then((data) => {
         if (data.status === "success") {
           setProjects(data.data);
-          if (data.data.length > 0) {
-            setSelectedProject(data.data[0].id.toString());
-            setNewApartment((prev) => ({
-              ...prev,
-              project_id: data.data[0].id.toString(),
-            }));
-          } else {
-            setSelectedProject("default");
-            setNewApartment((prev) => ({
-              ...prev,
-              project_id: "default",
-            }));
-          }
+          // Always select Ortachala Hills (ID: 1)
+          setSelectedProject("1");
+          setNewApartment((prev) => ({
+            ...prev,
+            project_id: "1",
+          }));
         }
       })
       .catch((error) => {
@@ -164,47 +157,45 @@ export default function AdminPanel() {
     }
   }, [selectedProject]);
 
-  // Fetch apartments for selected project
+  // Fetch apartments for project ID 1 (Ortachala Hills)
   useEffect(() => {
-    if (selectedProject && selectedProject !== "default") {
-      const url = `/api/apartments?project_id=${selectedProject}`;
-      console.log(
-        `Fetching apartments for project ID: ${selectedProject}, URL: ${url}`
-      );
-      fetch(url)
-        .then((res) => {
-          console.log("Apartment fetch response received:", res);
-          if (!res.ok) {
-            console.error(
-              "Apartment fetch failed with status:",
-              res.status,
-              res.statusText
-            );
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then((data) => {
-          console.log("Apartment fetch data:", data);
-          if (data.status === "success") {
-            setApartments(data.data);
-            console.log("Apartments state updated:", data.data);
-          } else {
-            console.error("Error in apartments response data:", data);
-            setApartments([]);
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching apartments:", error);
+    const timestamp = new Date().getTime();
+    const url = `/api/apartments?project_id=1&_=${timestamp}`;
+    console.log(`Fetching apartments for Ortachala Hills project, URL: ${url}`);
+    fetch(url, {
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        Pragma: "no-cache",
+      },
+    })
+      .then((res) => {
+        console.log("Apartment fetch response received:", res);
+        if (!res.ok) {
+          console.error(
+            "Apartment fetch failed with status:",
+            res.status,
+            res.statusText
+          );
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Apartment fetch data:", data);
+        if (data.status === "success") {
+          setApartments(data.data);
+          console.log("Apartments state updated:", data.data);
+        } else {
+          console.error("Error in apartments response data:", data);
           setApartments([]);
-        });
-    } else {
-      console.log(
-        "Selected project is default or not set, clearing apartments."
-      );
-      setApartments([]);
-    }
-  }, [selectedProject]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching apartments:", error);
+        setApartments([]);
+      });
+  }, []);
 
   const handleSort = (key) => {
     let direction = "asc";
@@ -330,15 +321,6 @@ export default function AdminPanel() {
       return;
     }
 
-    if (apartmentData.project_id === "default") {
-      console.error("პროექტი არ არის არჩეული");
-      setNotification({
-        type: "error",
-        message: "აირჩიეთ პროექტი",
-      });
-      return;
-    }
-
     // ჩვენ აღარ ვუგზავნით project_id-ს აპარტამენტის ცხრილს.
     // block_id უკვე დაკავშირებულია კონკრეტული პროექტთან ბაზაში
 
@@ -351,7 +333,7 @@ export default function AdminPanel() {
         body: JSON.stringify({
           ...apartmentData,
           block_id: apartmentData.block_id,
-          // აღარ ვუგზავნით project_id-ს
+          project_id: "1", // Always use Ortachala Hills project ID
         }),
       });
 
@@ -362,14 +344,27 @@ export default function AdminPanel() {
         });
         setIsAddDialogOpen(false);
 
-        // ბინების სიის განახლება
-        // შეცვლილია: თუ project_id არის default, მაშინ არ ვაგზავნით მოთხოვნას
-        if (selectedProject !== "default") {
-          const updatedResponse = await fetch(`/api/apartments`);
-          const updatedData = await updatedResponse.json();
-          if (updatedData.status === "success") {
-            setApartments(updatedData.data);
+        // ბინების სიის განახლება - მოდიფიცირებული კოდი, რომელიც ყოველთვის გააგზავნის მოთხოვნას
+        // ანტიქეშირების პარამეტრით
+        const timestamp = new Date().getTime();
+        const updatedResponse = await fetch(
+          `/api/apartments?project_id=1&_=${timestamp}`,
+          {
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache, no-store, must-revalidate",
+              Pragma: "no-cache",
+            },
           }
+        );
+
+        const updatedData = await updatedResponse.json();
+        if (updatedData.status === "success") {
+          setApartments(updatedData.data);
+          console.log(
+            "Apartments data refreshed after adding new apartment:",
+            updatedData.data
+          );
         }
 
         setNewApartment({
@@ -385,7 +380,7 @@ export default function AdminPanel() {
           balcony_area: "",
           balcony2_area: "",
           status: "available",
-          project_id: selectedProject,
+          project_id: "1", // Always use Ortachala Hills project ID
           block_id: "all",
         });
       }
@@ -417,11 +412,10 @@ export default function AdminPanel() {
   };
 
   const handleProjectChange = (projectId) => {
-    setSelectedProject(projectId === "default" ? "default" : projectId);
-    setNewApartment((prev) => ({
-      ...prev,
-      project_id: projectId === "default" ? "default" : projectId,
-    }));
+    // No longer needed since we always use project ID 1
+    console.log(
+      "Project selection attempted, but fixed to Ortachala Hills (ID: 1)"
+    );
   };
 
   const handleBlockChange = (blockId) => {
@@ -489,36 +483,7 @@ export default function AdminPanel() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-6">
-          {/* Project Selector */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center">
-                <Building className="mr-2 h-5 w-5 text-gray-500" />
-                <span className="font-medium">პროექტი</span>
-              </div>
-              <div className="mt-2">
-                <Select
-                  value={selectedProject}
-                  onValueChange={handleProjectChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="აირჩიეთ პროექტი" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="default">აირჩიეთ პროექტი</SelectItem>
-                    {projects.map((project) => (
-                      <SelectItem
-                        key={project.id}
-                        value={project.id.toString()}
-                      >
-                        {project.title_ge}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Project Selector - Hidden as we're always using Ortachala Hills */}
 
           {/* Block Selector */}
           <Card>
@@ -536,7 +501,6 @@ export default function AdminPanel() {
                     );
                     handleBlockChange(value);
                   }}
-                  disabled={!selectedProject || projects.length === 0}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="აირჩიეთ ბლოკი" />
@@ -574,6 +538,33 @@ export default function AdminPanel() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Floor Filter */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center">
+                <Filter className="mr-2 h-5 w-5 text-gray-500" />
+                <span className="font-medium">სართულის ფილტრი</span>
+              </div>
+              <div className="mt-2">
+                <Select value={filterFloor} onValueChange={setFilterFloor}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="აირჩიეთ სართული" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">ყველა სართული</SelectItem>
+                    {Array.from(new Set(apartments.map((a) => a.floor)))
+                      .sort((a, b) => a - b)
+                      .map((floor) => (
+                        <SelectItem key={floor} value={floor}>
+                          {floor} სართული
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
@@ -692,7 +683,39 @@ export default function AdminPanel() {
         </Card>
       </div>
 
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+      <Dialog
+        open={isAddDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            // Refresh data when dialog is closed
+            const timestamp = new Date().getTime();
+            fetch(`/api/apartments?project_id=1&_=${timestamp}`, {
+              cache: "no-store",
+              headers: {
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                Pragma: "no-cache",
+              },
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                if (data.status === "success") {
+                  setApartments(data.data);
+                  console.log(
+                    "Apartments refreshed after closing dialog:",
+                    data.data
+                  );
+                }
+              })
+              .catch((error) => {
+                console.error(
+                  "Error refreshing apartments after dialog close:",
+                  error
+                );
+              });
+          }
+          setIsAddDialogOpen(open);
+        }}
+      >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>ახალი ბინის დამატება</DialogTitle>
@@ -701,31 +724,6 @@ export default function AdminPanel() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {/* Project Selection */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="project" className="text-right">
-                პროექტი
-              </Label>
-              <Select
-                value={newApartment.project_id || "default"}
-                onValueChange={(value) =>
-                  setNewApartment((prev) => ({ ...prev, project_id: value }))
-                }
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="აირჩიეთ პროექტი" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">აირჩიეთ პროექტი</SelectItem>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id.toString()}>
-                      {project.title_ge}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Block Selection */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="block" className="text-right">
@@ -736,17 +734,11 @@ export default function AdminPanel() {
                 onValueChange={(value) =>
                   setNewApartment((prev) => ({ ...prev, block_id: value }))
                 }
-                disabled={
-                  !newApartment.project_id ||
-                  newApartment.project_id === "default" ||
-                  projects.length === 0
-                }
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="აირჩიეთ ბლოკი" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">ყველა ბლოკი</SelectItem>
                   {blocks.length > 0 ? (
                     blocks.map((block) => (
                       <SelectItem key={block.id} value={block.block_code}>
@@ -846,8 +838,7 @@ export default function AdminPanel() {
                 !newApartment.apartment_number ||
                 !newApartment.floor ||
                 !newApartment.total_area ||
-                newApartment.project_id === "default" ||
-                (newApartment.block_id === "all" && blocks.length > 0) ||
+                newApartment.block_id === "all" ||
                 newApartment.block_id === "no_blocks"
               }
             >

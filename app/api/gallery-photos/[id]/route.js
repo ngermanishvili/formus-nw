@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-// კონკრეტული გალერეის ფოტოს წამოღება
+// კონკრეტული სლაიდერის ფოტოს წამოღება
 export async function GET(request, { params }) {
   try {
     const result = await db.query(
@@ -27,7 +27,7 @@ export async function GET(request, { params }) {
       return NextResponse.json(
         {
           status: "error",
-          message: `გალერეის ფოტო ID ${params.id}-ით ვერ მოიძებნა`,
+          message: `სლაიდერის ფოტო ID ${params.id}-ით ვერ მოიძებნა`,
         },
         { status: 404 }
       );
@@ -42,7 +42,7 @@ export async function GET(request, { params }) {
     return NextResponse.json(
       {
         status: "error",
-        message: "გალერეის ფოტოს მოძიებისას დაფიქსირდა შეცდომა",
+        message: "სლაიდერის ფოტოს მოძიებისას დაფიქსირდა შეცდომა",
       },
       { status: 500 }
     );
@@ -65,7 +65,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json(
         {
           status: "error",
-          message: `გალერეის ფოტო ID ${params.id}-ით ვერ მოიძებნა`,
+          message: `სლაიდერის ფოტო ID ${params.id}-ით ვერ მოიძებნა`,
         },
         { status: 404 }
       );
@@ -75,20 +75,10 @@ export async function PUT(request, { params }) {
     const description = body.description ?? currentData[0].description;
     const image_path = body.image_path ?? currentData[0].image_path;
     const project_link = body.project_link ?? currentData[0].project_link;
-    const category = body.category ?? currentData[0].category;
+    const category = "exterior"; // Always use exterior for consistency
     const display_order = body.display_order ?? currentData[0].display_order;
     const is_active =
       body.is_active !== undefined ? body.is_active : currentData[0].is_active;
-
-    if (category !== "interior" && category !== "exterior") {
-      return NextResponse.json(
-        {
-          status: "error",
-          message: "კატეგორია უნდა იყოს 'interior' ან 'exterior'",
-        },
-        { status: 400 }
-      );
-    }
 
     const result = await db.query(
       `
@@ -127,45 +117,48 @@ export async function PUT(request, { params }) {
       {
         status: "error",
         message:
-          "გალერეის ფოტოს განახლებისას დაფიქსირდა შეცდომა: " + error.message,
+          "სლაიდერის ფოტოს განახლებისას დაფიქსირდა შეცდომა: " + error.message,
       },
       { status: 500 }
     );
   }
 }
 
-// გალერეის ფოტოს წაშლა
+// სლაიდერის ფოტოს წაშლა
 export async function DELETE(request, { params }) {
   try {
-    const result = await db.query(
-      `
-            DELETE FROM gallery_photos 
-            WHERE id = $1
-            RETURNING *
-        `,
+    // Check if the photo exists first
+    const checkResult = await db.query(
+      `SELECT id FROM gallery_photos WHERE id = $1`,
       [params.id]
     );
 
-    if (!result.length) {
+    if (!checkResult.length) {
       return NextResponse.json(
         {
           status: "error",
-          message: `გალერეის ფოტო ID ${params.id}-ით ვერ მოიძებნა`,
+          message: `სლაიდერის ფოტო ID ${params.id}-ით ვერ მოიძებნა`,
         },
         { status: 404 }
       );
     }
 
+    // If the photo exists, delete it
+    const result = await db.query(
+      `DELETE FROM gallery_photos WHERE id = $1`,
+      [params.id]
+    );
+
     return NextResponse.json({
       status: "success",
-      message: "გალერეის ფოტო წარმატებით წაიშალა",
+      message: "სლაიდერის ფოტო წარმატებით წაიშალა",
     });
   } catch (error) {
     console.error("API Error:", error);
     return NextResponse.json(
       {
         status: "error",
-        message: "გალერეის ფოტოს წაშლისას დაფიქსირდა შეცდომა",
+        message: "სლაიდერის ფოტოს წაშლისას დაფიქსირდა შეცდომა: " + error.message,
       },
       { status: 500 }
     );

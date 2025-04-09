@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { ImagePlus, Loader2, Link as LinkIcon, ArrowLeft } from "lucide-react";
 
@@ -21,7 +20,7 @@ export default function EditGalleryPhoto({ params }) {
     description: "",
     image_path: "",
     project_link: "",
-    category: "interior",
+    category: "exterior", // We'll keep the category for database compatibility
     display_order: 0,
     is_active: true,
   });
@@ -135,7 +134,7 @@ export default function EditGalleryPhoto({ params }) {
         </Button>
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            გალერეის ფოტოს რედაქტირება
+            სლაიდერის ფოტოს რედაქტირება
           </h1>
           <p className="text-gray-500 mt-1">შეცვალეთ ფოტოს ინფორმაცია</p>
         </div>
@@ -240,37 +239,9 @@ export default function EditGalleryPhoto({ params }) {
                 </p>
               </div>
 
-              {/* Category */}
-              <div className="space-y-2">
-                <Label>კატეგორია</Label>
-                <RadioGroup
-                  value={formData.category}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      category: value,
-                    }))
-                  }
-                  className="flex gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="interior" id="interior" />
-                    <Label htmlFor="interior" className="cursor-pointer">
-                      ინტერიერი
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="exterior" id="exterior" />
-                    <Label htmlFor="exterior" className="cursor-pointer">
-                      ექსტერიერი
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
               {/* Display Order */}
               <div className="space-y-2">
-                <Label htmlFor="display_order">ჩვენების რიგითობა</Label>
+                <Label htmlFor="display_order">რიგითობა</Label>
                 <Input
                   id="display_order"
                   type="number"
@@ -284,18 +255,18 @@ export default function EditGalleryPhoto({ params }) {
                   }
                 />
                 <p className="text-xs text-gray-500">
-                  მცირე რიცხვები ნაჩვენები იქნება პირველად
+                  დაბალი რიცხვი წინ გამოჩნდება
                 </p>
               </div>
 
               {/* Is Active */}
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="is_active" className="block mb-1">
-                    აქტიური
+                  <Label htmlFor="is_active" className="mb-1 block">
+                    აქტიურია
                   </Label>
                   <p className="text-xs text-gray-500">
-                    გამორთეთ, რომ დამალოთ ფოტო საიტზე
+                    გამორთეთ თუ არ გსურთ ამ ფოტოს გამოჩენა სლაიდერში
                   </p>
                 </div>
                 <Switch
@@ -312,9 +283,9 @@ export default function EditGalleryPhoto({ params }) {
             </CardContent>
           </Card>
 
-          {/* Submit Button */}
           <div className="flex justify-end gap-4">
             <Button
+              type="button"
               variant="outline"
               onClick={() => router.back()}
               disabled={submitLoading}
@@ -324,7 +295,7 @@ export default function EditGalleryPhoto({ params }) {
             <Button
               type="submit"
               disabled={submitLoading || !isFormValid()}
-              className="min-w-[150px]"
+              className="bg-blue-500 hover:bg-blue-600 text-white min-w-[150px]"
             >
               {submitLoading ? (
                 <>

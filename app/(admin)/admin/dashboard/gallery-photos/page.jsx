@@ -3,32 +3,29 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2, ExternalLink, ImageIcon } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function GalleryPhotosDashboard() {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("all");
   const router = useRouter();
 
   useEffect(() => {
     fetchPhotos();
   }, []);
 
-  const fetchPhotos = async (category = null) => {
+  const fetchPhotos = async () => {
     try {
-      const url =
-        category && category !== "all"
-          ? `/api/gallery-photos?category=${category}`
-          : "/api/gallery-photos";
-
-      const response = await fetch(url);
+      const response = await fetch("/api/gallery-photos");
       const data = await response.json();
 
       if (data.status === "success") {
-        setPhotos(data.data);
+        // Sort by display order
+        const sortedPhotos = data.data.sort(
+          (a, b) => a.display_order - b.display_order
+        );
+        setPhotos(sortedPhotos);
       }
     } catch (error) {
       console.error("Error fetching gallery photos:", error);
@@ -37,29 +34,25 @@ export default function GalleryPhotosDashboard() {
     }
   };
 
-  const handleTabChange = (value) => {
-    setActiveTab(value);
-    setLoading(true);
-
-    if (value === "all") {
-      fetchPhotos();
-    } else {
-      fetchPhotos(value);
-    }
-  };
-
   const handleDelete = async (id) => {
-    if (window.confirm("გსურთ გალერეის ფოტოს წაშლა?")) {
+    if (window.confirm("გსურთ სლაიდერის ფოტოს წაშლა?")) {
       try {
         const response = await fetch(`/api/gallery-photos/${id}`, {
           method: "DELETE",
         });
 
+        const data = await response.json();
+
         if (response.ok) {
-          fetchPhotos(activeTab !== "all" ? activeTab : null);
+          alert("ფოტო წარმატებით წაიშალა");
+          fetchPhotos();
+        } else {
+          alert(data.message || "ფოტოს წაშლისას დაფიქსირდა შეცდომა");
+          console.error("Error response:", data);
         }
       } catch (error) {
         console.error("Error deleting gallery photo:", error);
+        alert("ფოტოს წაშლისას დაფიქსირდა შეცდომა");
       }
     }
   };
@@ -67,22 +60,19 @@ export default function GalleryPhotosDashboard() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">გალერეის ფოტოების მართვა</h1>
-        <Button
-          onClick={() => router.push("/admin/dashboard/gallery-photos/create")}
-          className="bg-blue-500 hover:bg-blue-600 text-white"
-        >
-          ფოტოს დამატება
-        </Button>
+        <h1 className="text-2xl font-bold">სლაიდერის ფოტოების მართვა</h1>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-500">მაქსიმუმ 12 ფოტო</div>
+          <Button
+            onClick={() =>
+              router.push("/admin/dashboard/gallery-photos/create")
+            }
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            ფოტოს დამატება
+          </Button>
+        </div>
       </div>
-
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="all">ყველა</TabsTrigger>
-          <TabsTrigger value="interior">ინტერიერი</TabsTrigger>
-          <TabsTrigger value="exterior">ექსტერიერი</TabsTrigger>
-        </TabsList>
-      </Tabs>
 
       {loading ? (
         <div className="flex justify-center items-center p-12">
@@ -105,9 +95,6 @@ export default function GalleryPhotosDashboard() {
                       <ImageIcon className="h-12 w-12 text-gray-400" />
                     </div>
                   )}
-                  <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 text-xs font-medium">
-                    {photo.category === "interior" ? "ინტერიერი" : "ექსტერიერი"}
-                  </div>
                 </div>
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">

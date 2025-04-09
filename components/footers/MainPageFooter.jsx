@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { MapPin, Phone, Clock, Mail } from "lucide-react";
 import FooterLogo from "@/public/assets/shapes/home/footer-logo.png";
+import FooterLogoGe from "@/public/assets/imgs/logo/formus-footer-ge.svg";
 import Image from "next/image";
 import { useLocale } from "next-intl";
 import {
@@ -58,6 +59,9 @@ export default function Footer() {
       : contactInfo.address_line_en;
   };
 
+  // Add timestamp to prevent caching
+  const timestamp = new Date().getTime();
+
   return (
     <footer className="bg-[#003366] w-full">
       <div className="container mx-auto max-w-7xl px-4">
@@ -67,13 +71,29 @@ export default function Footer() {
             {/* Logo Section - Left */}
             <div className="-ml-[120px] mt-[60px] min-[2000px]:mt-[100px]">
               <Link href={`/${locale}`}>
-                <Image
-                  src={FooterLogo}
-                  alt="Formus Logo"
-                  width={120}
-                  height={120}
-                  className="w-auto h-auto min-[2000px]:w-[200px] min-[2000px]:h-[200px]"
-                />
+                {locale === "ka" ? (
+                  // Georgian logo - directly import SVG
+                  <Image
+                    src="/assets/imgs/logo/formus-footer-ge.svg"
+                    alt="Formus Logo"
+                    width={120}
+                    height={120}
+                    className="w-auto h-auto min-[2000px]:w-[200px] min-[2000px]:h-[200px]"
+                    priority={true}
+                    unoptimized={true}
+                  />
+                ) : (
+                  // English logo - directly import PNG
+                  <Image
+                    src="/assets/shapes/home/footer-logo.png"
+                    alt="Formus Logo"
+                    width={120}
+                    height={120}
+                    className="w-auto h-auto min-[2000px]:w-[200px] min-[2000px]:h-[200px]"
+                    priority={true}
+                    unoptimized={true}
+                  />
+                )}
               </Link>
             </div>
 

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { MapPin, Phone, Clock, Mail } from "lucide-react";
 import FooterLogo from "@/public/assets/shapes/home/footer-logo.png";
+import FooterLogoGe from "@/public/assets/imgs/logo/formus-footer-ge.svg";
 import Image from "next/image";
 import { useLocale } from "next-intl";
 import {
@@ -58,6 +59,9 @@ export default function Footer5() {
     }
   };
 
+  // Add timestamp to prevent caching
+  const timestamp = new Date().getTime();
+
   return (
     <footer className="w-full bg-[#00326B]">
       {/* Mobile Footer */}
@@ -73,13 +77,27 @@ export default function Footer5() {
             <div className="flex items-center justify-between w-[90%] mx-auto">
               <div className="w-[150px]">
                 <Link href={`/${locale}`}>
-                  <Image
-                    src={FooterLogo}
-                    alt="Formus"
-                    width={100}
-                    height={100}
-                    className="w-auto h-auto"
-                  />
+                  {locale === "ka" ? (
+                    <Image
+                      src="/assets/imgs/logo/formus-footer-ge.svg"
+                      alt="Formus"
+                      width={100}
+                      height={100}
+                      className="w-auto h-auto"
+                      priority={true}
+                      unoptimized={true}
+                    />
+                  ) : (
+                    <Image
+                      src="/assets/shapes/home/footer-logo.png"
+                      alt="Formus"
+                      width={100}
+                      height={100}
+                      className="w-auto h-auto"
+                      priority={true}
+                      unoptimized={true}
+                    />
+                  )}
                 </Link>
               </div>
               <div className="flex justify-end gap-4">

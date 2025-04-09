@@ -146,8 +146,10 @@ export async function POST(request) {
       );
     }
 
+    // Revalidate all relevant paths
     revalidatePath("/admin/dashboard");
-    console.log("Revalidated path: /admin/dashboard after POST");
+    revalidatePath("/api/apartments");
+    console.log("Revalidated paths: /admin/dashboard and /api/apartments after POST");
 
     return NextResponse.json({
       status: "success",
@@ -268,10 +270,17 @@ export async function GET(request) {
 
     const result = await db.query(query, queryParams);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       status: "success",
       data: result,
     });
+
+    // Add cache control headers to prevent caching
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+
+    return response;
   } catch (error) {
     console.error("Error fetching apartments:", error);
     return NextResponse.json(
