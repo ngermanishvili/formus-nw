@@ -126,13 +126,18 @@ export default function EditApartmentPage({ params }) {
         blocks.map((b) => ({ id: b.id, code: b.block_code, name: b.name }))
       );
 
-      const blockExists = blocks.some(
-        (block) => block.block_code === apartment.block_id
-      );
-      console.log("Block exists in list:", blockExists);
-
-      if (!blockExists && blocks.length > 0) {
-        console.log("Block not found in list, keeping current block_id");
+      // Ensure block_id is never null/undefined/empty
+      if (!apartment.block_id || apartment.block_id.trim() === "") {
+        console.log("Empty block_id found, setting temporary value");
+        setApartment((prev) => ({
+          ...prev,
+          block_id: "no-block",
+        }));
+      } else {
+        const blockExists = blocks.some(
+          (block) => block.block_code === apartment.block_id
+        );
+        console.log("Block exists in list:", blockExists);
       }
     }
   }, [blocks, apartment]);
@@ -243,12 +248,12 @@ export default function EditApartmentPage({ params }) {
               <div className="space-y-2">
                 <label className="text-sm font-medium">ბლოკი</label>
                 <Select
-                  value={apartment.block_id}
+                  value={apartment.block_id || "no-block"}
                   onValueChange={(value) => {
                     console.log("Block selection changed to:", value);
                     setApartment({
                       ...apartment,
-                      block_id: value,
+                      block_id: value === "no-block" ? "" : value,
                     });
                   }}
                 >
@@ -258,8 +263,10 @@ export default function EditApartmentPage({ params }) {
                   <SelectContent>
                     {/* Include current block if it's not in the blocks list */}
                     {apartment.block_id &&
+                      apartment.block_id.trim() !== "" &&
                       !blocks.some(
-                        (block) => block.block_code === apartment.block_id
+                        (block) =>
+                          (block.block_code || "") === apartment.block_id
                       ) && (
                         <SelectItem
                           key="current-block"
@@ -270,11 +277,26 @@ export default function EditApartmentPage({ params }) {
                       )}
 
                     {/* Display all available blocks */}
-                    {blocks.map((block) => (
-                      <SelectItem key={block.id} value={block.block_code}>
-                        ბლოკი {block.name}
-                      </SelectItem>
-                    ))}
+                    {blocks
+                      .filter(
+                        (block) =>
+                          block.block_code && block.block_code.trim() !== ""
+                      )
+                      .map((block) => (
+                        <SelectItem
+                          key={block.id || `block-${block.block_code}`}
+                          value={block.block_code || `fallback-${block.id}`}
+                        >
+                          ბლოკი {block.name || block.block_code || "უცნობი"}
+                        </SelectItem>
+                      ))}
+
+                    {/* Show an option if no blocks or no current block */}
+                    {(!blocks ||
+                      blocks.length === 0 ||
+                      (!apartment.block_id && blocks.length === 0)) && (
+                      <SelectItem value="no-block">აირჩიეთ ბლოკი</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

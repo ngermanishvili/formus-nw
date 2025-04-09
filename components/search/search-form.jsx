@@ -64,30 +64,53 @@ export default function SearchForm() {
       try {
         setIsProjectsLoading(true);
         const timestamp = new Date().getTime();
-        // ვთხოვთ ყველა პროექტს და მერე ვფილტრავთ კლიენტის მხარეს
-        const response = await fetch(`/api/projects?t=${timestamp}`);
+        // Add cache-busting headers to the fetch request
+        const response = await fetch(`/api/projects?t=${timestamp}`, {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+          },
+        });
+
         if (response.ok) {
-          const { data } = await response.json();
+          const data = await response.json();
+          console.log("Projects data:", data);
 
-          // ფილტრაცია, რომ მხოლოდ აქტიური პროექტები გამოჩნდეს
-          const activeProjects = data.filter(
-            (project) => project.is_active === true
-          );
+          if (data && data.data) {
+            // ფილტრაცია, რომ მხოლოდ აქტიური პროექტები გამოჩნდეს
+            const activeProjects = data.data.filter(
+              (project) => project.is_active === true
+            );
 
-          setProjects(activeProjects);
+            console.log("Active projects:", activeProjects);
+            setProjects(activeProjects);
 
-          // პირველი აქტიური პროექტის არჩევა, თუ არსებობს
-          if (activeProjects.length > 0) {
-            setSearchParams((prev) => ({
-              ...prev,
-              project: activeProjects[0].id.toString(),
-            }));
+            // პირველი აქტიური პროექტის არჩევა, თუ არსებობს
+            if (activeProjects.length > 0) {
+              setSearchParams((prev) => ({
+                ...prev,
+                project: activeProjects[0].id.toString(),
+              }));
+            }
+          } else {
+            console.error("Invalid projects data format:", data);
+            setProjects([]);
           }
+        } else {
+          console.error(
+            "Failed to fetch projects:",
+            response.status,
+            response.statusText
+          );
+          setProjects([]);
         }
       } catch (error) {
-        // შეცდომის ლოგირება მოხდება მხოლოდ სერვერზე, არა ბრაუზერში
+        console.error("Error fetching projects:", error);
+        setProjects([]);
       } finally {
         setIsProjectsLoading(false);
+        setLoading(false);
       }
     };
 
@@ -117,37 +140,39 @@ export default function SearchForm() {
         }
       }
 
-      // თუ პროექტის ID არის 1, გადავიდეთ homes-list-ში
-      if (searchParams.project === "1") {
-        // შევქმნათ query პარამეტრები
-        const params = new URLSearchParams();
+      // შევქმნათ query პარამეტრები
+      const params = new URLSearchParams();
 
-        // პირველად დავამატოთ პროექტის ID (ამას აქვს მნიშვნელობა)
-        params.set("projects", "1");
+      // პირველად დავამატოთ პროექტის ID
+      params.set("projects", searchParams.project);
 
-        // შემდეგ დავამატოთ available სტატუსი
-        params.set("statuses", "available");
+      // შემდეგ დავამატოთ available სტატუსი
+      params.set("statuses", "available");
 
-        // დავამატოთ area range თუ არჩეულია
-        if (searchParams.areaRange) {
-          const [minArea, maxArea] = searchParams.areaRange.split("-");
-          params.set("totalAreaMin", minArea);
-          params.set("totalAreaMax", maxArea);
-        }
+      // დავამატოთ area range თუ არჩეულია
+      if (searchParams.areaRange) {
+        const [minArea, maxArea] = searchParams.areaRange.split("-");
+        params.set("totalAreaMin", minArea);
+        params.set("totalAreaMax", maxArea);
+      }
 
-        // შევქმნათ URL და გადავიდეთ homes-list-ში
-        const url = `/${locale}/homes-list?${params.toString()}`;
-        window.location.href = url;
-      } else {
-        // For all other projects, navigate to project details page
-        const url = `/${locale}/projects/${searchParams.project}/-`;
+      // Use router.push instead of window.location to avoid full page reload
+      const url = `/${locale}/homes-list?${params.toString()}`;
+      console.log("Navigating to:", url);
+
+      try {
+        // Try using router.push first (client-side navigation)
+        router.push(url);
+      } catch (error) {
+        console.error(
+          "Router navigation failed, using window.location:",
+          error
+        );
         window.location.href = url;
       }
     } else {
       // If no project selected, just go to homes-list with available status
       const params = new URLSearchParams();
-      // Keep same order here as well
-      params.set("projects", "");
       params.set("statuses", "available");
 
       // Add area range if selected
@@ -158,7 +183,17 @@ export default function SearchForm() {
       }
 
       const url = `/${locale}/homes-list?${params.toString()}`;
-      window.location.href = url;
+      console.log("Navigating to:", url);
+
+      try {
+        router.push(url);
+      } catch (error) {
+        console.error(
+          "Router navigation failed, using window.location:",
+          error
+        );
+        window.location.href = url;
+      }
     }
   };
 
