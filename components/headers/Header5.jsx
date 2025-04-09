@@ -62,6 +62,9 @@ export default function Header5() {
   const pathname = usePathname();
   const locale = useLocale();
   const router = useRouter();
+  const [contactInfo, setContactInfo] = useState({
+    phone_number: "+995123456789",
+  });
 
   const isHomePage = pathname === `/${locale}` || pathname === "/";
 
@@ -97,6 +100,21 @@ export default function Header5() {
       setScrolled(window.scrollY > 200);
     };
     window.addEventListener("scroll", handleScroll);
+
+    // Fetch contact info
+    const fetchContactInfo = async () => {
+      try {
+        const contactResponse = await fetch("/api/contactinfo");
+        const contactData = await contactResponse.json();
+        if (contactData.status === "success") {
+          setContactInfo(contactData.data);
+        }
+      } catch (error) {
+        console.error("Error fetching contact data:", error);
+      }
+    };
+
+    fetchContactInfo();
 
     if (isHomePage) {
       const urlParams = new URLSearchParams(window.location.search);
@@ -197,7 +215,12 @@ export default function Header5() {
                 </button>
 
                 <a
-                  href="tel:+995123456789"
+                  href={`https://wa.me/${contactInfo.phone_number.replace(
+                    /\D/g,
+                    ""
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center text-white hover:text-[#f94011] transition-colors ml-2"
                 >
                   <Phone className="w-3 h-3" />

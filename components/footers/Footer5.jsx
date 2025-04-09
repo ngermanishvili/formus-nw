@@ -212,7 +212,12 @@ export default function Footer5() {
                   <Phone className="text-white" size={20} />
                 </span>
                 <a
-                  href={`tel:${contactInfo.phone_number}`}
+                  href={`https://wa.me/${contactInfo.phone_number.replace(
+                    /\D/g,
+                    ""
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-white text-sm hover:opacity-80 transition-opacity ml-3"
                 >
                   {contactInfo.phone_number}
