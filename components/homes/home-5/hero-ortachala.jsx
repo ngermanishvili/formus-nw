@@ -12,6 +12,7 @@ export default function HeroOrtachala() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const pathname = usePathname();
   const currentLang = pathname.includes("/ka") ? "ge" : "en";
@@ -19,7 +20,9 @@ export default function HeroOrtachala() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch("/api/projects");
+        setIsLoading(true);
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/projects?t=${timestamp}`);
         const data = await response.json();
 
         if (data.status === "success") {
@@ -29,6 +32,7 @@ export default function HeroOrtachala() {
         console.error("Error fetching projects:", error);
       } finally {
         setLoading(false);
+        setIsLoading(false);
       }
     };
 

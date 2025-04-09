@@ -1,4 +1,3 @@
-"use client";
 import Footer1 from "@/components/footers/Footer1";
 import Hero from "@/components/homes/home-5/Hero";
 import Faq from "@/components/homes/home-5/Faq";
@@ -6,6 +5,11 @@ import DownloadApp from "@/components/common/downloadApp/DownloadApp";
 import Image from "next/image";
 import Shape from "@/public/assets/shapes/home/3.png";
 import GalleryGrid from "@/components/apartment/gallery";
+
+// Add cache control directives
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 //
 export default function Page() {

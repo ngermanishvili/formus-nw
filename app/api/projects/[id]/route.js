@@ -1,6 +1,9 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic'; // Prevent caching at the route level
+export const revalidate = 0; // Prevent caching at the route level
+
 export async function GET(request, { params }) {
     try {
         console.log('Requesting project with ID:', params.id);
@@ -26,10 +29,20 @@ export async function GET(request, { params }) {
             data.features_ge = JSON.parse(data.features_ge);
         }
 
-        return NextResponse.json({
+        // Add cache control headers to prevent caching
+        const response = NextResponse.json({
             status: "success",
-            data
+            data,
+            timestamp: Date.now() // Add timestamp for cache busting
         });
+
+        // Set cache control headers
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('Surrogate-Control', 'no-store');
+
+        return response;
     } catch (error) {
         console.error('API Error:', error);
         return NextResponse.json({
@@ -111,11 +124,21 @@ export async function PUT(request, { params }) {
             updatedProject.features_ge = JSON.parse(updatedProject.features_ge);
         }
 
-        return NextResponse.json({
+        // Add cache control headers to prevent caching
+        const response = NextResponse.json({
             status: "success",
             message: "პროექტი წარმატებით განახლდა",
-            data: updatedProject
+            data: updatedProject,
+            timestamp: Date.now() // Add timestamp for cache busting
         });
+
+        // Set cache control headers
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('Surrogate-Control', 'no-store');
+
+        return response;
 
     } catch (error) {
         console.error('Update Error:', error);

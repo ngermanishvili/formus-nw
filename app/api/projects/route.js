@@ -1,6 +1,9 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic'; // Prevent caching at the route level
+export const revalidate = 0; // Prevent caching at the route level
+
 export async function GET(request) {
     try {
         const url = new URL(request.url);
@@ -18,10 +21,20 @@ export async function GET(request) {
 
         const result = await db.query(query);
 
-        return NextResponse.json({
+        // Add cache control headers to prevent caching
+        const response = NextResponse.json({
             status: "success",
-            data: result
+            data: result,
+            timestamp: Date.now() // Add timestamp for cache busting
         });
+
+        // Set cache control headers
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('Surrogate-Control', 'no-store');
+
+        return response;
     } catch (error) {
         console.error('API Error:', error);
         return NextResponse.json(
@@ -108,10 +121,20 @@ export async function POST(request) {
             map_url || null
         ]);
 
-        return NextResponse.json({
+        // Add cache control headers to prevent caching
+        const response = NextResponse.json({
             status: "success",
-            data: result[0]
+            data: result[0],
+            timestamp: Date.now() // Add timestamp for cache busting
         });
+
+        // Set cache control headers
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('Surrogate-Control', 'no-store');
+
+        return response;
     } catch (error) {
         console.error('API Error:', error);
         return NextResponse.json(

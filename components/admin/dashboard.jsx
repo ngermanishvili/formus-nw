@@ -77,6 +77,7 @@ export default function AdminPanel() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterFloor, setFilterFloor] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [newApartment, setNewApartment] = useState({
     apartment_number: "",
     floor: "",
@@ -95,11 +96,17 @@ export default function AdminPanel() {
 
   // Fetch projects
   useEffect(() => {
-    fetch("/api/projects")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "success") {
-          setProjects(data.data);
+    Promise.all([
+      fetch("/api/stats").then((res) => res.json()),
+      fetch("/api/apartments/recent?limit=5").then((res) => res.json()),
+      fetch("/api/orders/recent?limit=5").then((res) => res.json()),
+      fetch(`/api/projects?t=${new Date().getTime()}`).then((res) =>
+        res.json()
+      ),
+    ])
+      .then(([stats, recentApartments, recentOrders, projectsData]) => {
+        if (projectsData.status === "success") {
+          setProjects(projectsData.data);
           // Always select Ortachala Hills (ID: 1)
           setSelectedProject("1");
           setNewApartment((prev) => ({
@@ -159,17 +166,22 @@ export default function AdminPanel() {
 
   // Fetch apartments for project ID 1 (Ortachala Hills)
   useEffect(() => {
-    const timestamp = new Date().getTime();
-    const url = `/api/apartments?project_id=1&_=${timestamp}`;
-    console.log(`Fetching apartments for Ortachala Hills project, URL: ${url}`);
-    fetch(url, {
-      cache: "no-store",
-      headers: {
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        Pragma: "no-cache",
-      },
-    })
-      .then((res) => {
+    const fetchApartments = async () => {
+      const timestamp = new Date().getTime();
+      const url = `/api/apartments?project_id=1&_=${timestamp}`;
+      console.log(
+        `Fetching apartments for Ortachala Hills project, URL: ${url}`
+      );
+
+      try {
+        const res = await fetch(url, {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+          },
+        });
+
         console.log("Apartment fetch response received:", res);
         if (!res.ok) {
           console.error(
@@ -179,10 +191,10 @@ export default function AdminPanel() {
           );
           throw new Error(`HTTP error! status: ${res.status}`);
         }
-        return res.json();
-      })
-      .then((data) => {
+
+        const data = await res.json();
         console.log("Apartment fetch data:", data);
+
         if (data.status === "success") {
           setApartments(data.data);
           console.log("Apartments state updated:", data.data);
@@ -190,12 +202,19 @@ export default function AdminPanel() {
           console.error("Error in apartments response data:", data);
           setApartments([]);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching apartments:", error);
         setApartments([]);
-      });
-  }, []);
+      }
+    };
+
+    fetchApartments();
+  }, [refreshTrigger]);
+
+  // Function to refresh apartments data
+  const refreshApartments = () => {
+    setRefreshTrigger((prev) => prev + 1); // Increment to trigger a refresh
+  };
 
   const handleSort = (key) => {
     let direction = "asc";
@@ -329,6 +348,7 @@ export default function AdminPanel() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
         },
         body: JSON.stringify({
           ...apartmentData,
@@ -344,29 +364,10 @@ export default function AdminPanel() {
         });
         setIsAddDialogOpen(false);
 
-        // ბინების სიის განახლება - მოდიფიცირებული კოდი, რომელიც ყოველთვის გააგზავნის მოთხოვნას
-        // ანტიქეშირების პარამეტრით
-        const timestamp = new Date().getTime();
-        const updatedResponse = await fetch(
-          `/api/apartments?project_id=1&_=${timestamp}`,
-          {
-            cache: "no-store",
-            headers: {
-              "Cache-Control": "no-cache, no-store, must-revalidate",
-              Pragma: "no-cache",
-            },
-          }
-        );
+        // Refresh apartments list
+        refreshApartments();
 
-        const updatedData = await updatedResponse.json();
-        if (updatedData.status === "success") {
-          setApartments(updatedData.data);
-          console.log(
-            "Apartments data refreshed after adding new apartment:",
-            updatedData.data
-          );
-        }
-
+        // Reset form
         setNewApartment({
           apartment_number: "",
           floor: "",
@@ -381,7 +382,7 @@ export default function AdminPanel() {
           balcony2_area: "",
           status: "available",
           project_id: "1", // Always use Ortachala Hills project ID
-          block_id: "all",
+          block_id: blocks.length > 0 ? blocks[0].block_code : "all",
         });
       }
     } catch (error) {
@@ -688,30 +689,7 @@ export default function AdminPanel() {
         onOpenChange={(open) => {
           if (!open) {
             // Refresh data when dialog is closed
-            const timestamp = new Date().getTime();
-            fetch(`/api/apartments?project_id=1&_=${timestamp}`, {
-              cache: "no-store",
-              headers: {
-                "Cache-Control": "no-cache, no-store, must-revalidate",
-                Pragma: "no-cache",
-              },
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (data.status === "success") {
-                  setApartments(data.data);
-                  console.log(
-                    "Apartments refreshed after closing dialog:",
-                    data.data
-                  );
-                }
-              })
-              .catch((error) => {
-                console.error(
-                  "Error refreshing apartments after dialog close:",
-                  error
-                );
-              });
+            refreshApartments();
           }
           setIsAddDialogOpen(open);
         }}

@@ -14,13 +14,15 @@ export default function ProjectContent({ id, slug }) {
   const currentLang = pathname.includes("/ka") ? "ge" : "en";
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchProjects = async () => {
       try {
-        const response = await fetch("/api/projects");
-        const data = await response.json();
+        setLoading(true);
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/projects?t=${timestamp}`);
+        const result = await response.json();
 
-        if (data.status === "success" && data.data) {
-          const project = data.data.find((p) => p.id === parseInt(id));
+        if (result.status === "success" && result.data) {
+          const project = result.data.find((p) => p.id === parseInt(id));
 
           if (project) {
             const title =
@@ -61,7 +63,7 @@ export default function ProjectContent({ id, slug }) {
     };
 
     if (id && slug) {
-      fetchData();
+      fetchProjects();
     }
   }, [id, slug, currentLang, router]);
 

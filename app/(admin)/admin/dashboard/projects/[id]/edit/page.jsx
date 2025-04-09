@@ -264,7 +264,10 @@ export default function EditProject({ params }) {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await fetch(`/api/projects/${params.id}`);
+        const timestamp = new Date().getTime();
+        const response = await fetch(
+          `/api/projects/${params.id}?t=${timestamp}`
+        );
         const result = await response.json();
 
         if (result.status === "success" && result.data) {
@@ -330,16 +333,20 @@ export default function EditProject({ params }) {
     setSubmitLoading(true);
 
     try {
-      const response = await fetch(`/api/projects/${params.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const timestamp = new Date().getTime();
+      const response = await fetch(
+        `/api/projects/${params.id}?t=${timestamp}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (response.ok) {
-        router.push("/admin/dashboard/projects");
+        router.push(`/admin/dashboard/projects?t=${timestamp}`);
       } else {
         const data = await response.json();
         alert(data.message || "შეცდომა პროექტის განახლებისას");

@@ -34,15 +34,13 @@ const translations = {
 
 export default function SearchForm() {
   const { locale = "ka" } = useParams() || {};
-  console.log("Current locale:", locale); // Log the locale
   const router = useRouter();
   const t = translations[locale] || translations.ka;
-  console.log("Selected translation object:", t); // Log the selected translation
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isProjectsLoading, setIsProjectsLoading] = useState(true);
 
-  const areaUnit = t.areaUnit; // Get the area unit from translations
-  console.log("Selected area unit:", areaUnit); // Log the area unit
+  const areaUnit = t.areaUnit;
 
   const areaRanges = [
     { value: "20-40", label: `20-40 ${areaUnit}` },
@@ -64,24 +62,32 @@ export default function SearchForm() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        setLoading(true);
-        const response = await fetch("/api/projects?isActive=true");
+        setIsProjectsLoading(true);
+        const timestamp = new Date().getTime();
+        // ვთხოვთ ყველა პროექტს და მერე ვფილტრავთ კლიენტის მხარეს
+        const response = await fetch(`/api/projects?t=${timestamp}`);
         if (response.ok) {
           const { data } = await response.json();
-          setProjects(data);
 
-          // Set default project if available
-          if (data.length > 0) {
+          // ფილტრაცია, რომ მხოლოდ აქტიური პროექტები გამოჩნდეს
+          const activeProjects = data.filter(
+            (project) => project.is_active === true
+          );
+
+          setProjects(activeProjects);
+
+          // პირველი აქტიური პროექტის არჩევა, თუ არსებობს
+          if (activeProjects.length > 0) {
             setSearchParams((prev) => ({
               ...prev,
-              project: data[0].id.toString(),
+              project: activeProjects[0].id.toString(),
             }));
           }
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
+        // შეცდომის ლოგირება მოხდება მხოლოდ სერვერზე, არა ბრაუზერში
       } finally {
-        setLoading(false);
+        setIsProjectsLoading(false);
       }
     };
 
@@ -93,27 +99,43 @@ export default function SearchForm() {
   };
 
   const handleSearch = () => {
-    // Create URL based on selected project
+    // ჯერ შევამოწმოთ, რომ არჩეული პროექტი ნამდვილად არსებობს და აქტიურია
     if (searchParams.project) {
-      // If project ID is 1, navigate to homes-list
+      // ვიპოვოთ არჩეული პროექტი
+      const selectedProject = projects.find(
+        (p) => p.id.toString() === searchParams.project
+      );
+
+      // თუ პროექტი არაა აქტიური, შევირჩიოთ პირველი აქტიური პროექტი
+      if (!selectedProject || !selectedProject.is_active) {
+        if (projects.length > 0) {
+          setSearchParams((prev) => ({
+            ...prev,
+            project: projects[0].id.toString(),
+          }));
+          return;
+        }
+      }
+
+      // თუ პროექტის ID არის 1, გადავიდეთ homes-list-ში
       if (searchParams.project === "1") {
-        // Create query parameters
+        // შევქმნათ query პარამეტრები
         const params = new URLSearchParams();
 
-        // First add project ID (order matters)
+        // პირველად დავამატოთ პროექტის ID (ამას აქვს მნიშვნელობა)
         params.set("projects", "1");
 
-        // Then add available status
+        // შემდეგ დავამატოთ available სტატუსი
         params.set("statuses", "available");
 
-        // Add area range if selected
+        // დავამატოთ area range თუ არჩეულია
         if (searchParams.areaRange) {
           const [minArea, maxArea] = searchParams.areaRange.split("-");
           params.set("totalAreaMin", minArea);
           params.set("totalAreaMax", maxArea);
         }
 
-        // Create the URL and navigate to homes-list
+        // შევქმნათ URL და გადავიდეთ homes-list-ში
         const url = `/${locale}/homes-list?${params.toString()}`;
         window.location.href = url;
       } else {
@@ -159,17 +181,25 @@ export default function SearchForm() {
                                    focus:ring-2 focus:ring-green-400 transition-all text-left"
               >
                 <SelectValue
-                  placeholder={loading ? "იტვირთება..." : t.choose}
+                  placeholder={isProjectsLoading ? "იტვირთება..." : t.choose}
                 />
               </SelectTrigger>
               <SelectContent>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id.toString()}>
+                {projects.length > 0 ? (
+                  projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id.toString()}>
+                      {locale === "ka"
+                        ? project.title_ge
+                        : project.title_en || project.title}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>
                     {locale === "ka"
-                      ? project.title_ge
-                      : project.title_en || project.title}
+                      ? "პროექტები არ არის"
+                      : "No projects available"}
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>

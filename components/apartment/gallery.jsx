@@ -20,7 +20,8 @@ const GalleryGrid = () => {
     const fetchGalleryPhotos = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/gallery-photos");
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/gallery-photos?t=${timestamp}`);
         const result = await response.json();
 
         if (result.status === "success") {

@@ -3,6 +3,9 @@ import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = 'force-dynamic'; // Prevent caching at the route level
+export const revalidate = 0; // Prevent caching at the route level
+
 export async function POST(request) {
   try {
     const data = await request.json();
@@ -149,9 +152,12 @@ export async function POST(request) {
     // Revalidate all relevant paths
     revalidatePath("/admin/dashboard");
     revalidatePath("/api/apartments");
-    console.log("Revalidated paths: /admin/dashboard and /api/apartments after POST");
+    revalidatePath("/homes-list");
+    revalidatePath("/");
+    console.log("Revalidated paths: /admin/dashboard, /api/apartments, /homes-list, and / after POST");
 
-    return NextResponse.json({
+    // Add cache control headers to prevent caching
+    const response = NextResponse.json({
       status: "success",
       message: "ბინა წარმატებით დაემატა",
       data: {
@@ -159,7 +165,16 @@ export async function POST(request) {
         type_id: typeId,
         details: apartmentDetails || null,
       },
+      timestamp: Date.now() // Add timestamp for cache busting
     });
+
+    // Set cache control headers
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    response.headers.set('Surrogate-Control', 'no-store');
+
+    return response;
   } catch (error) {
     console.error("Error creating apartment:", error);
     return NextResponse.json(
@@ -273,12 +288,14 @@ export async function GET(request) {
     const response = NextResponse.json({
       status: "success",
       data: result,
+      timestamp: Date.now() // Add timestamp for cache busting
     });
 
     // Add cache control headers to prevent caching
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
+    response.headers.set('Surrogate-Control', 'no-store');
 
     return response;
   } catch (error) {

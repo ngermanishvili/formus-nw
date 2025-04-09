@@ -167,7 +167,11 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch("/api/projects?isActive=true");
+        setIsLoading(true);
+        const timestamp = new Date().getTime();
+        const response = await fetch(
+          `/api/projects?isActive=true&t=${timestamp}`
+        );
         if (response.ok) {
           const { data } = await response.json();
           setProjects(data);

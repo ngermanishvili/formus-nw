@@ -17,7 +17,8 @@ export default function ProjectsDashboard() {
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch("/api/projects");
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/projects?t=${timestamp}`);
       const data = await response.json();
       if (data.status === "success") {
         // The server already sorts by display_order, but let's ensure consistent order here too

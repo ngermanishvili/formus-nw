@@ -110,11 +110,11 @@ export default function CreateApartmentPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch("/api/projects");
-        if (response.ok) {
-          const { data } = await response.json();
-          setProjects(data);
-        }
+        setLoading(true);
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/projects?t=${timestamp}`);
+        const data = await response.json();
+        setProjects(data);
       } catch (error) {
         console.error("Error fetching projects:", error);
       }

@@ -44,7 +44,8 @@ export default function Services1() {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/projects");
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/projects?t=${timestamp}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

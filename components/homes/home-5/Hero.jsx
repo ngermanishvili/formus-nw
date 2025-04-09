@@ -39,7 +39,7 @@ export default function Hero() {
       try {
         const [slidersRes, projectsRes] = await Promise.all([
           fetch("/api/sliders"),
-          fetch("/api/projects"),
+          fetch(`/api/projects?t=${new Date().getTime()}`),
         ]);
 
         const [slidersData, projectsData] = await Promise.all([
