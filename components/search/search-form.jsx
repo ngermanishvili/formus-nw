@@ -222,14 +222,17 @@ export default function SearchForm() {
               <SelectContent>
                 {projects.length > 0 ? (
                   projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id.toString()}>
+                    <SelectItem
+                      key={project.id}
+                      value={project.id?.toString() || `project-${project.id}`}
+                    >
                       {locale === "ka"
                         ? project.title_ge
                         : project.title_en || project.title}
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>
+                  <SelectItem value="no-projects" disabled>
                     {locale === "ka"
                       ? "პროექტები არ არის"
                       : "No projects available"}
@@ -260,7 +263,15 @@ export default function SearchForm() {
 
           <div className="flex-1 min-w-0">
             <p className="text-gray-500 text-sm mb-1 text-left">{t.area}</p>
-            <Select onValueChange={(value) => handleSelect(value, "areaRange")}>
+            <Select
+              value={searchParams.areaRange || "no-area-selected"}
+              onValueChange={(value) =>
+                handleSelect(
+                  value === "no-area-selected" ? "" : value,
+                  "areaRange"
+                )
+              }
+            >
               <SelectTrigger
                 className="h-12 bg-gray-50 border-none rounded-xl 
                                    focus:ring-2 focus:ring-green-400 transition-all text-left"
@@ -268,10 +279,13 @@ export default function SearchForm() {
                 <SelectValue placeholder={t.choose} className="text-left" />
               </SelectTrigger>
               <SelectContent align="start">
+                <SelectItem value="no-area-selected" className="text-left">
+                  {t.choose}
+                </SelectItem>
                 {areaRanges.map((range) => (
                   <SelectItem
-                    key={range.value}
-                    value={range.value}
+                    key={range.value || `range-${range.label}`}
+                    value={range.value || `range-${range.label}`}
                     className="text-left"
                   >
                     {range.label}
