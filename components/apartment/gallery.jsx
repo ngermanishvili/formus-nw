@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { CldImage } from "next-cloudinary";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -14,6 +14,8 @@ const GalleryGrid = () => {
   const [loading, setLoading] = useState(true);
   const [galleryPhotos, setGalleryPhotos] = useState([]);
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.startsWith("/ka") ? "ka" : "en";
 
   // Load all gallery photos
   useEffect(() => {
@@ -50,6 +52,10 @@ const GalleryGrid = () => {
 
   return (
     <div className="mx-auto py-24">
+      <h2 className="text-4xl flex justify-center items-center">
+        {locale === "ka" ? "გალერეა" : "Gallery"}
+      </h2>
+
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin" />
@@ -59,7 +65,7 @@ const GalleryGrid = () => {
           <p>No photos available</p>
         </div>
       ) : (
-        <div className="gallery-swiper-container">
+        <div className="gallery-swiper-container mt-[100px] md:mt-5">
           <style jsx global>{`
             .gallery-swiper .swiper-button-next,
             .gallery-swiper .swiper-button-prev {
