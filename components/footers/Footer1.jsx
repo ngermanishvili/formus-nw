@@ -3,8 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { MapPin, Phone, Clock, Mail } from "lucide-react";
-import FooterLogo from "@/public/assets/shapes/home/footer-logo.png";
-import FooterLogoGe from "@/public/assets/imgs/logo/formus-footer-ge.svg";
+
 import Image from "next/image";
 import { useLocale } from "next-intl";
 import {

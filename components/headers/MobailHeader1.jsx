@@ -6,6 +6,7 @@ import { useLocale } from "next-intl";
 import { Menu, X, Phone } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/public/assets/imgs/logo/formus-header1.png";
+import LogoGe from "@/public/assets/imgs/logo/formus-header-ge.png";
 
 const MobileHeader = ({ routes, languageNames }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -80,7 +81,7 @@ const MobileHeader = ({ routes, languageNames }) => {
             <Link href={`/${locale}`} className="text-white text-xl font-bold">
               <div className="w-28 h-10 relative">
                 <Image
-                  src={Logo}
+                  src={locale === "ka" ? LogoGe : Logo}
                   alt="Formus Logo"
                   fill
                   style={{ objectFit: "cover" }}
@@ -115,7 +116,15 @@ const MobileHeader = ({ routes, languageNames }) => {
                 href={`/${locale}`}
                 className="text-white text-xl font-bold"
               >
-                FORMUS
+                <div className="w-28 h-10 relative">
+                  <Image
+                    src={locale === "ka" ? LogoGe : Logo}
+                    alt="Formus Logo"
+                    fill
+                    style={{ objectFit: "cover" }}
+                    priority
+                  />
+                </div>
               </Link>
               <button
                 onClick={() => setIsMenuOpen(false)}

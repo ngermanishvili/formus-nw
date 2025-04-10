@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MapPin, Phone, Clock, Mail } from "lucide-react";
 import FooterLogo from "@/public/assets/shapes/home/footer-logo.png";
-import FooterLogoGe from "@/public/assets/imgs/logo/formus-footer-ge.svg";
+import FooterLogoGe from "@/public/assets/imgs/logo/formus-footer-ge.png";
 import Image from "next/image";
 import { useLocale } from "next-intl";
 import {
@@ -124,7 +124,7 @@ export default function Footer5() {
                     alt="Formus"
                     width={70}
                     height={70}
-                    className="w-[150px] h-[70px]"
+                    className={`w-[80px] h-[80] ${isMobile ? "" : "ml-11"}`}
                     priority={true}
                     unoptimized={true}
                   />
@@ -202,7 +202,9 @@ export default function Footer5() {
             }`}
           >
             <h6
-              className={`text-white/60 text-sm font-medium mb-6 ml-4 ${georgianTextClass}`}
+              className={`text-white/60 text-sm font-medium mb-6 ${
+                isMobile ? "" : "ml-4"
+              } ${georgianTextClass}`}
             >
               {locale === "ka" ? "ტელეფონი/ელ-ფოსტა" : "Phone/E-mail"}
             </h6>

@@ -8,6 +8,7 @@ import { Phone } from "lucide-react";
 import MobileHeader1 from "@/components/headers/MobailHeader1";
 import Image from "next/image";
 import Logo from "@/public/assets/imgs/logo/formus-header1.png";
+import LogoGe from "@/public/assets/imgs/logo/formus-header-ge.png";
 
 const routes = [
   {
@@ -180,7 +181,7 @@ export default function Header5() {
               >
                 <div className="w-28 h-10 relative">
                   <Image
-                    src={Logo}
+                    src={locale === "ka" ? LogoGe : Logo}
                     alt="Formus Logo"
                     fill
                     style={{ objectFit: "cover" }}
