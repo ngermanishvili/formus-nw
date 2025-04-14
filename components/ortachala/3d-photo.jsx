@@ -17,12 +17,12 @@ export default function GreenSection() {
 
         <div className="relative w-full h-[300px] md:h-[500px] mx-auto">
           <Image
-            src="https://i.ibb.co/4wnf6qcW/ORTACHALA-HILLS-3.gif"
+            src="/assets/location.gif"
             alt={currentLang === "ka" ? "მზის ლოკაცია" : "Sun Location"}
             fill
             unoptimized
-            className="object-cover rounded-3xl shadow-xl "
-            sizes="(max-width: 768px) 100vw, (min-width: 769px) 50vw "
+            className="object-cover rounded-3xl shadow-xl"
+            sizes="(max-width: 768px) 100vw, (min-width: 769px) 50vw"
           />
         </div>
       </div>

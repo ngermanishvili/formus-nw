@@ -1,4 +1,6 @@
-//app/[locale]/(services)/project-details/[id]/page.jsx
+"use client";
+
+import { useParams } from "next/navigation";
 import Footer5 from "@/components/footers/Footer5";
 import Header5 from "@/components/headers/Header5";
 import Partners from "@/components/common/partners/Partners";
@@ -23,7 +25,10 @@ export const metadata = {
     "ფორმუსი სამშენებლო კომპანია, რომელიც გთავაზობთ სრულყოფილ სამშენებლო მომსახურებას და სამშენებლო პროექტებს სრულყოფილი სამშენებლო მომსახურების სფეროში.",
 };
 
-export default function page() {
+export default function Page() {
+  const params = useParams();
+  const projectId = params.id;
+
   return (
     <>
       <Header5 /> <MobailHeader1 />
@@ -32,7 +37,7 @@ export default function page() {
         <div className="border-bottom"></div>
         <HeroSectionContent />
         <FaqLeft />
-        <GreenSection />
+        {projectId === "1" && <GreenSection />}
         <DownloadApp />
       </main>
       <Footer1 />

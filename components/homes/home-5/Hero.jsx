@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { Autoplay, Navigation } from "swiper/modules";
+import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -9,22 +9,22 @@ import { usePathname } from "next/navigation";
 import LeftomBottomShape from "@/public/assets/shapes/home/1.png";
 
 const baseSettings = {
-  modules: [Navigation, Autoplay],
+  modules: [Autoplay],
   autoplay: {
-    delay: 10000,
+    delay: 4000,
     disableOnInteraction: false,
   },
 };
 
 export default function Hero() {
   const [mounted, setMounted] = useState(false);
-
   const [data, setData] = useState({
     sliders: [],
     projects: [],
   });
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [bgImage, setBgImage] = useState("");
 
   const pathname = usePathname();
   const currentLang = pathname?.includes("/ka") ? "ge" : "en";
@@ -38,8 +38,18 @@ export default function Hero() {
       setLoading(true);
       try {
         const [slidersRes, projectsRes] = await Promise.all([
-          fetch("/api/sliders"),
-          fetch(`/api/projects?t=${new Date().getTime()}`),
+          fetch("/api/sliders", {
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache",
+            },
+          }),
+          fetch(`/api/projects?t=${new Date().getTime()}`, {
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache",
+            },
+          }),
         ]);
 
         const [slidersData, projectsData] = await Promise.all([
@@ -47,10 +57,20 @@ export default function Hero() {
           projectsRes.json(),
         ]);
 
+        const slidersResult =
+          slidersData.status === "success" ? slidersData.data : [];
+
         setData({
-          sliders: slidersData.status === "success" ? slidersData.data : [],
+          sliders: slidersResult,
           projects: projectsData.status === "success" ? projectsData.data : [],
         });
+
+        if (slidersResult.length > 0) {
+          setBgImage(
+            slidersResult[0]?.image_url ||
+              "/assets/imgs/page/homepage5/banner.png"
+          );
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -60,6 +80,16 @@ export default function Hero() {
 
     fetchData();
   }, []);
+
+  // Update background image when active slide changes
+  useEffect(() => {
+    if (data.sliders.length > 0 && activeIndex < data.sliders.length) {
+      setBgImage(
+        data.sliders[activeIndex]?.image_url ||
+          "/assets/imgs/page/homepage5/banner.png"
+      );
+    }
+  }, [activeIndex, data.sliders]);
 
   if (!mounted) return null;
 
@@ -75,14 +105,11 @@ export default function Hero() {
     <section className="section banner-home5">
       <div className="box-banner-homepage-2">
         <div
-          className="box-cover-image"
+          className="box-cover-image cursor-pointer"
           suppressHydrationWarning
           style={{
-            backgroundImage: `url(${
-              data.sliders[0]?.image_url ||
-              "/assets/imgs/page/homepage5/banner.png"
-            })`,
-            transition: "background-image 0.3s ease-in-out",
+            backgroundImage: `url(${bgImage})`,
+            transition: "background-image 0.6s ease-in-out",
             backgroundPosition: "center",
             backgroundSize: "cover",
           }}
@@ -94,93 +121,32 @@ export default function Hero() {
                 <Swiper
                   {...baseSettings}
                   slidesPerView={1}
-                  loop={data.projects.length > 1}
-                  navigation={{
-                    nextEl: ".snbn11",
-                    prevEl: ".snbp11",
-                  }}
+                  loop={data.sliders.length > 1}
                   onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-                  className="swiper-container swiper-banner-1 pb-0"
+                  className="swiper-container swiper-banner-1 pb-0 cursor-pointer"
+                  grabCursor={true}
                 >
                   {data.sliders.map((slider) => (
                     <SwiperSlide key={slider.id} className="swiper-slide">
-                      <div className=" mx-auto" />
+                      <div className="mx-auto cursor-pointer">
+                        <h1 className="heading-52-medium color-white wow fadeInUp text-2xl md:text-3xl lg:text-6xl xl:text-6xl">
+                          {currentLang === "ge"
+                            ? slider.title_ge
+                            : slider.title_en}
+                        </h1>
+                        {slider.description_ge && (
+                          <p className="text-base md:text-lg color-white mt-4 max-w-2xl">
+                            {currentLang === "ge"
+                              ? slider.description_ge
+                              : slider.description_en}
+                          </p>
+                        )}
+                      </div>
                     </SwiperSlide>
                   ))}
                 </Swiper>
-                <div className=" absolute ">
-                  {/* <h2 className="text-base md:text-lg lg:text-xl color-white wow fadeInUp mt-4">
-                    {currentLang === "ge"
-                      ? data.sliders[0]?.description_ge
-                      : data.sliders[0]?.description_en}
-                  </h2> */}
-                  <p className="heading-52-medium color-white wow fadeInUp text-2xl md:text-3xl lg:text-6xl xl:text-6xl">
-                    {currentLang === "ge"
-                      ? data.sliders[0]?.title_ge
-                      : data.sliders[0]?.title_en}
-                  </p>
-                  {/* 
-                  <Link
-                    className="btn btn-border mt-2"
-                    href="/projects/1/ortachala-hilsi"
-                  >
-                    {currentLang === "ge"
-                      ? "მიმდინარე პროექტი"
-                      : "Ongoing Project"}
-                    <svg
-                      className="icon-16"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"
-                      ></path>
-                    </svg>
-                  </Link> */}
-                </div>
               </>
             )}
-            {/* 
-            <div className="box-pagination-button box-pagination-button-2  md:px-16 lg:px-24 ">
-              <div className="swiper-button-prev swiper-button-prev-banner swiper-button-prev-banner-2 snbp11 flex items-center justify-center min-[2000px]:ml-[-160px]">
-                <svg
-                  className="w-6 h-6 md:w-8 md:h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-                  />
-                </svg>
-              </div>
-              <div className="swiper-button-prev swiper-button-prev-banner swiper-button-prev-banner-2 snbp11 flex items-center justify-center min-[2000px]:ml-[-160px]">
-                <svg
-                  className="w-6 h-6 md:w-8 md:h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  />
-                </svg>
-              </div>
-            </div> */}
           </div>
         </div>
         <div className="box-services-banner">
