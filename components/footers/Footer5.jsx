@@ -187,7 +187,7 @@ export default function Footer5() {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://maps.app.goo.gl/8rUczLePMh8SSBFL6"
+                href="https://maps.app.goo.gl/oRLfqFw3RzTq9tpr7"
                 className={`text-white text-sm whitespace-pre-line ${georgianTextClass}`}
               >
                 {getLocalizedAddress()}

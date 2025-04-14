@@ -118,13 +118,18 @@ export default function Footer() {
               <h6 className="text-white/60 text-sm font-medium mb-4">
                 {locale === "ka" ? "მისამართი" : "Address"}
               </h6>
-              <div className="flex items-start">
+              <a
+                href="https://maps.app.goo.gl/oRLfqFw3RzTq9tpr7"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start hover:opacity-80 transition-opacity"
+              >
                 <MapPin
                   className="text-white mr-2 flex-shrink-0 mt-1"
                   size={20}
                 />
                 <p className="text-white text-sm">{getLocalizedAddress()}</p>
-              </div>
+              </a>
             </div>
 
             {/* Center Section - Contact */}
