@@ -1,16 +1,18 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MapPin, Phone, Clock, Mail } from "lucide-react";
 import FooterLogo from "@/public/assets/shapes/home/footer-logo.png";
-import FooterLogoGe from "@/public/assets/imgs/logo/formus-footer-ge.svg";
+import FooterLogoGe from "@/public/assets/imgs/logo/formus-footer-ge.png";
 import Image from "next/image";
 import { useLocale } from "next-intl";
 import {
   PiFacebookLogo,
   PiInstagramLogo,
   PiLinkedinLogo,
+  PiTiktokLogo,
+  PiYoutubeLogo,
 } from "react-icons/pi";
 
 const translations = {
@@ -18,35 +20,50 @@ const translations = {
     workingHours: "Working Hours",
     monToFri: "Mon- Sat: 10:00 - 18:00",
     saturday: "Sat: 11:00 - 17:00",
-    termsAndConditions: "Terms and Conditions",
+    terms: "Terms & Conditions",
   },
   ka: {
     workingHours: "სამუშაო საათები",
-    monToFri: "ორშ-პარ: 10:00 - 18:00",
-    saturday: "შაბ: 11:00 - 17:00",
-    termsAndConditions: "წესები და პირობები",
+    monToFri: "ორშაბათი-პარასკევი: 10:00 - 18:00",
+    saturday: "შაბათი: 11:00 - 17:00",
+    terms: "წესები და პირობები",
   },
 };
 
-export default function Footer() {
+export default function Footer5() {
   const locale = useLocale();
+  const pathname = usePathname();
   const t = translations[locale];
   const [contactInfo, setContactInfo] = useState(null);
+  const [socialLinks, setSocialLinks] = useState([]);
+
+  const isHomePage = pathname === `/${locale}` || pathname === "/";
 
   useEffect(() => {
-    const fetchContactInfo = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch("/api/contactinfo");
-        const data = await response.json();
-        if (data.status === "success") {
-          setContactInfo(data.data);
+        // Fetch contact info
+        const contactResponse = await fetch("/api/contactinfo");
+        const contactData = await contactResponse.json();
+        if (contactData.status === "success") {
+          setContactInfo(contactData.data);
+        }
+
+        // Fetch social links
+        const socialResponse = await fetch("/api/social-links");
+        const socialData = await socialResponse.json();
+        if (socialData.status === "success") {
+          const sortedLinks = socialData.data
+            .filter((link) => link.is_visible)
+            .sort((a, b) => a.display_order - b.display_order);
+          setSocialLinks(sortedLinks);
         }
       } catch (error) {
-        console.error("Error fetching contact info:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchContactInfo();
+    fetchData();
   }, []);
 
   if (!contactInfo) {
@@ -54,137 +71,231 @@ export default function Footer() {
   }
 
   const getLocalizedAddress = () => {
-    return locale === "ka"
-      ? contactInfo.address_line_ge
-      : contactInfo.address_line_en;
+    if (locale === "ka") {
+      return contactInfo.address_line_ge.replace("თბილისი", "\nთბილისი");
+    } else {
+      return contactInfo.address_line_en.replace("Tbilisi", "\nTbilisi");
+    }
   };
 
-  // Add timestamp to prevent caching
-  const timestamp = new Date().getTime();
+  const georgianTextClass =
+    locale === "ka" ? "[font-feature-settings:'case'_on]" : "";
 
-  return (
-    <footer className="bg-[#003366] w-full">
-      <div className="container mx-auto max-w-7xl px-4">
-        <div className="py-4">
-          {/* Main Footer Content */}
-          <div className="flex justify-between items-center relative">
-            {/* Logo Section - Left */}
-            <div className="-ml-[120px] mt-[60px] min-[2000px]:mt-[100px]">
+  const socialIcons = {
+    facebook: PiFacebookLogo,
+    instagram: PiInstagramLogo,
+    linkedin: PiLinkedinLogo,
+    tiktok: PiTiktokLogo,
+    youtube: PiYoutubeLogo,
+  };
+
+  const FooterContent = ({ isMobile }) => {
+    // Add a timestamp to prevent caching
+    const timestamp = new Date().getTime();
+
+    return (
+      <div
+        className={`${
+          isMobile
+            ? "px-6"
+            : "mx-auto max-w-7xl w-[1280px] px-40 md:px-28 md:w-full xl:w-[1280px] xl:px-40"
+        } ${isHomePage ? (isMobile ? "" : "") : ""}`}
+      >
+        {/* Logo and Social Media Section */}
+        <div
+          className={`py-8 border-b border-gray-700 ${isMobile ? "px-4" : ""}`}
+        >
+          <div
+            className={`flex flex-col ${
+              isMobile
+                ? "items-center space-y-6"
+                : "flex-row items-center justify-between mx-auto"
+            }`}
+          >
+            <div
+              className={`${
+                isMobile ? "w-[120px]" : "w-[150px] translate-x-[-30%]"
+              }`}
+            >
               <Link href={`/${locale}`}>
                 {locale === "ka" ? (
-                  // Georgian logo - directly import SVG
                   <Image
-                    src="/assets/imgs/logo/formus-footer-ge.svg"
-                    alt="Formus Logo"
-                    width={120}
-                    height={120}
-                    className="w-auto h-auto min-[2000px]:w-[200px] min-[2000px]:h-[200px]"
+                    src={`${FooterLogoGe.src}?t=${timestamp}`}
+                    alt="Formus"
+                    width={70}
+                    height={70}
+                    className={`w-[80px] h-[80] ${isMobile ? "" : "ml-11"}`}
                     priority={true}
                     unoptimized={true}
                   />
                 ) : (
-                  // English logo - directly import PNG
                   <Image
-                    src="/assets/shapes/home/footer-logo.png"
-                    alt="Formus Logo"
-                    width={120}
-                    height={120}
-                    className="w-auto h-auto min-[2000px]:w-[200px] min-[2000px]:h-[200px]"
+                    src={`${FooterLogo.src}?t=${timestamp}`}
+                    alt="Formus"
+                    width={100}
+                    height={100}
+                    className="w-auto h-auto"
                     priority={true}
                     unoptimized={true}
                   />
                 )}
               </Link>
             </div>
+            <div className="flex justify-center gap-2 relative z-0 mr-[5%]">
+              {socialLinks.map((social) => {
+                const IconComponent = socialIcons[social.platform_key];
+                if (!IconComponent || !social.url) return null;
 
-            {/* Social Icons - Right */}
-            <div className="flex gap-4 -mr-20 min-[2000px]:mt-[100px] min-[2000px]:-mr-[-140px] mt-[60px]">
-              <a href="#" className="hover:opacity-80 transition-opacity">
-                <PiFacebookLogo className="text-white" size={24} />
-              </a>
-              <a href="#" className="hover:opacity-80 transition-opacity">
-                <PiInstagramLogo className="text-white" size={24} />
-              </a>
-              <a href="#" className="hover:opacity-80 transition-opacity">
-                <PiLinkedinLogo className="text-white" size={24} />
-              </a>
+                return (
+                  <a
+                    key={social.platform_key}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:opacity-80 transition-opacity relative z-50"
+                  >
+                    <IconComponent
+                      className="text-white"
+                      size={isMobile ? 28 : 24}
+                    />
+                  </a>
+                );
+              })}
             </div>
           </div>
+        </div>
 
-          {/* Contact Information Grid */}
-          <div className="grid grid-cols-12 gap-4 mt-16 mb-4">
-            {/* Left Section - Address */}
-            <div className="col-span-2 flex flex-col -ml-20 w-[250px]">
-              <h6 className="text-white/60 text-sm font-medium mb-4">
-                {locale === "ka" ? "მისამართი" : "Address"}
-              </h6>
+        {/* Info Sections */}
+        <div
+          className={`py-12 ${
+            isMobile ? "space-y-12" : "grid grid-cols-3 gap-8"
+          }`}
+        >
+          {/* Address Section */}
+          <div
+            className={`flex flex-col ${
+              isMobile ? "items-center text-center" : "items-start"
+            }`}
+          >
+            <h6
+              className={`text-white/60 text-sm font-medium mb-6 lg:mr-[84px] ${georgianTextClass}`}
+            >
+              {locale === "ka" ? "მისამართი" : "Address"}
+            </h6>
+            <div className="flex items-center">
+              <MapPin className="text-white mr-3 flex-shrink-0" size={20} />
               <a
-                href="https://maps.app.goo.gl/oRLfqFw3RzTq9tpr7"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-start hover:opacity-80 transition-opacity"
+                href="https://maps.app.goo.gl/oRLfqFw3RzTq9tpr7"
+                className={`text-white text-sm whitespace-pre-line ${georgianTextClass}`}
               >
-                <MapPin
-                  className="text-white mr-2 flex-shrink-0 mt-1"
-                  size={20}
-                />
-                <p className="text-white text-sm">{getLocalizedAddress()}</p>
+                {getLocalizedAddress()}
               </a>
             </div>
+          </div>
 
-            {/* Center Section - Contact */}
-            <div className="col-span-4 flex flex-col items-center">
-              <h6 className="text-white/60 text-sm font-medium mb-4">
-                {locale === "ka" ? "ტელეფონი/ელ-ფოსტა" : "Phone/E-mail"}
-              </h6>
-              <div className="flex flex-col space-y-2">
-                <div className="flex items-center">
-                  <Phone className="text-white mr-2" size={20} />
-                  <a
-                    href={`tel:${contactInfo.phone_number}`}
-                    className="text-white text-sm hover:opacity-80 transition-opacity"
-                  >
-                    {contactInfo.phone_number}
-                  </a>
-                </div>
-                <div className="flex items-center">
-                  <Mail className="text-white mr-2" size={20} />
-                  <a
-                    href={`mailto:${contactInfo.email}`}
-                    className="text-white text-sm hover:opacity-80 transition-opacity"
-                  >
-                    {contactInfo.email}
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Section - Working Hours */}
-            <div className="col-span-4 flex flex-col items-center -mr-[170px]">
-              <h6 className="text-white/60 text-sm font-medium mb-4 -mr-[-200px]">
-                {t.workingHours}
-              </h6>
-              <div className="flex items-start gap-14">
-                <div className="flex items-center">
-                  <Clock className="text-white mr-2" size={20} />
-                  <div className="text-white text-sm">
-                    <p>{t.monToFri}</p>
-                    <p>{t.saturday}</p>
-                  </div>
-                </div>
-                <Link
-                  href="#"
-                  className="text-white text-sm hover:opacity-80 transition-opacity"
+          {/* Phone/Email Section */}
+          <div
+            className={`flex flex-col ${
+              isMobile ? "items-center" : "items-center"
+            }`}
+          >
+            <h6
+              className={`text-white/60 text-sm font-medium mb-6 ${
+                isMobile ? "" : "ml-4"
+              } ${georgianTextClass}`}
+            >
+              {locale === "ka" ? "ტელეფონი/ელ-ფოსტა" : "Phone/E-mail"}
+            </h6>
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center">
+                <span className="w-6 flex justify-center">
+                  <Phone className="text-white" size={20} />
+                </span>
+                <a
+                  href={`https://wa.me/${contactInfo.phone_number.replace(
+                    /\D/g,
+                    ""
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white text-sm hover:opacity-80 transition-opacity ml-3"
                 >
-                  {t.termsAndConditions}
-                </Link>
+                  {contactInfo.phone_number}
+                </a>
+              </div>
+              <div className="flex items-center">
+                <span className="w-6 flex justify-center">
+                  <Mail className="text-white" size={20} />
+                </span>
+                <a
+                  href={`mailto:${contactInfo.email}`}
+                  className="text-white text-sm hover:opacity-80 transition-opacity ml-3"
+                >
+                  {contactInfo.email}
+                </a>
               </div>
             </div>
           </div>
 
-          {/* Footer Bottom Border */}
-          <div className="border-t border-white/10 pt-4"></div>
+          {/* Working Hours Section */}
+          <div
+            className={`flex flex-col ${
+              isMobile ? "items-center" : "items-center"
+            }`}
+          >
+            <h6
+              className={`text-white/60 text-sm font-medium mb-6 lg:mr-[84px] ${georgianTextClass}`}
+            >
+              {t.workingHours}
+            </h6>
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center justify-center">
+                <Clock className="text-white mr-3" size={20} />
+                <div className={`text-white text-sm ${georgianTextClass}`}>
+                  <p>{t.monToFri}</p>
+                  <p>{t.saturday}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Footer Bottom */}
+        <div className="border-t border-gray-700 py-6">
+          <div
+            className={`${
+              isMobile
+                ? "flex flex-col items-center space-y-4"
+                : "flex items-center justify-between"
+            }`}
+          >
+            <span className="text-gray-200 text-sm">
+              © {new Date().getFullYear()} Formus
+            </span>
+            <Link
+              className={`text-gray-200 text-sm hover:text-white transition-colors ${georgianTextClass}`}
+              href={`/${locale}/terms`}
+            >
+              {t.terms}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <footer className="w-full bg-[#00326B]">
+      {/* Mobile Footer */}
+      <div className="block md:hidden">
+        <FooterContent isMobile={true} />
+      </div>
+
+      {/* Desktop Footer */}
+      <div className="hidden md:block">
+        <FooterContent isMobile={false} />
       </div>
     </footer>
   );

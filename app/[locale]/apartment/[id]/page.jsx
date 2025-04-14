@@ -23,6 +23,8 @@ const translations = {
     threeDRender: "3D Render",
     twoDPlan: "2D Plan",
     view360: "360°",
+    statusSold: "Sold",
+    statusAvailable: "Available",
   },
   ka: {
     features: "მახასიათებლები:",
@@ -39,6 +41,8 @@ const translations = {
     threeDRender: "3D რენდერი",
     twoDPlan: "2D გეგმა",
     view360: "360°",
+    statusSold: "გაყიდულია",
+    statusAvailable: "თავისუფალი",
   },
 };
 
@@ -144,11 +148,11 @@ const ApartmentDetails = () => {
             <div className="mt-4">
               {data.status === "sold" ? (
                 <span className="bg-[#f94011] text-white px-2 py-1 rounded">
-                  გაყიდულია
+                  {t.statusSold}
                 </span>
               ) : (
                 <span className="bg-[#a2c080] text-white px-2 py-1 rounded">
-                  თავისუფალი
+                  {t.statusAvailable}
                 </span>
               )}
             </div>

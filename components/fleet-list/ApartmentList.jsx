@@ -2,18 +2,31 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { CldImage } from "next-cloudinary";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import FloorFilters from "../apartment/floor-filters";
 
 const ITEMS_PER_PAGE = 12;
 const CACHE_TTL = 1000 * 60 * 30; // 30 minutes
 
-const statusConfig = {
-  available: { text: "ხელმისაწვდომი", color: "bg-[#a2c080]" },
-  sold: { text: "გაყიდული", color: "bg-[#f94011]" },
-  reserved: { text: "დაჯავშნილი", color: "bg-yellow-500" },
-  default: { text: "უცნობი", color: "bg-gray-500" },
-};
+// Update statusConfig to be a function that returns appropriate text based on language
+const getStatusConfig = (isEnglish) => ({
+  available: {
+    text: isEnglish ? "Available" : "ხელმისაწვდომი",
+    color: "bg-[#a2c080]",
+  },
+  sold: {
+    text: isEnglish ? "Sold" : "გაყიდული",
+    color: "bg-[#f94011]",
+  },
+  reserved: {
+    text: isEnglish ? "Reserved" : "დაჯავშნილი",
+    color: "bg-yellow-500",
+  },
+  default: {
+    text: isEnglish ? "Unknown" : "უცნობი",
+    color: "bg-gray-500",
+  },
+});
 
 const cloudinaryLoader = ({ src, width, quality }) => {
   const params = [
@@ -44,6 +57,7 @@ export default function ApartmentList() {
   const [activeView, setActiveView] = useState("3D");
   const [visibleItems, setVisibleItems] = useState(ITEMS_PER_PAGE);
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   // Updated filters section in ApartmentList component
   const filters = useMemo(
@@ -367,58 +381,82 @@ export default function ApartmentList() {
   );
 }
 
-const LoadingIndicator = () => (
-  <div className="min-h-[400px] flex items-center justify-center">
-    <div className="text-lg">იტვირთება...</div>
-  </div>
-);
+const LoadingIndicator = () => {
+  const pathname = usePathname();
+  const isEnglish = pathname?.includes("/en") || false;
 
-const ErrorDisplay = ({ message }) => (
-  <div className="min-h-[400px] flex items-center justify-center">
-    <div className="text-red-500">{message}</div>
-  </div>
-);
-
-const HeaderSection = ({ count, activeView, setView }) => (
-  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-    <div className="flex items-center gap-4">
-      {/* <h2 className="text-2xl font-semibold">ჩვენი ბინები</h2> */}
-      <span className="text-sm text-gray-500">ნაპოვნია {count} ბინა</span>
+  return (
+    <div className="min-h-[400px] flex items-center justify-center">
+      <div className="text-lg">{isEnglish ? "Loading..." : "იტვირთება..."}</div>
     </div>
+  );
+};
 
-    <div className="flex gap-2">
-      {["2D", "3D"].map((view) => (
-        <button
-          key={view}
-          onClick={() => setView(view)}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-            activeView === view
-              ? "bg-[#00326b] text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-        >
-          {view} ვიზუალი
-        </button>
+const ErrorDisplay = ({ message }) => {
+  const pathname = usePathname();
+  const isEnglish = pathname?.includes("/en") || false;
+
+  return (
+    <div className="min-h-[400px] flex items-center justify-center">
+      <div className="text-red-500">
+        {isEnglish ? "Error loading apartments" : message}
+      </div>
+    </div>
+  );
+};
+
+const HeaderSection = ({ count, activeView, setView }) => {
+  const pathname = usePathname();
+  const isEnglish = pathname?.includes("/en") || false;
+
+  return (
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex items-center gap-4">
+        <span className="text-sm text-gray-500">
+          {isEnglish ? `Found ${count} apartments` : `ნაპოვნია ${count} ბინა`}
+        </span>
+      </div>
+
+      <div className="flex gap-2">
+        {["2D", "3D"].map((view) => (
+          <button
+            key={view}
+            onClick={() => setView(view)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeView === view
+                ? "bg-[#00326b] text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            {view} {isEnglish ? "view" : "ვიზუალი"}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ApartmentGrid = ({ items, activeView }) => {
+  const pathname = usePathname();
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {items.map((apt, index) => (
+        <ApartmentCard
+          key={apt.apartment_id}
+          apt={apt}
+          index={index}
+          view={activeView}
+          pathname={pathname}
+        />
       ))}
     </div>
-  </div>
-);
+  );
+};
 
-const ApartmentGrid = ({ items, activeView }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {items.map((apt, index) => (
-      <ApartmentCard
-        key={apt.apartment_id}
-        apt={apt}
-        index={index}
-        view={activeView}
-      />
-    ))}
-  </div>
-);
-
-const ApartmentCard = ({ apt, index, view }) => {
+const ApartmentCard = ({ apt, index, view, pathname }) => {
   const imageUrl = apt[`home_${view.toLowerCase()}`];
+  const isEnglish = pathname?.includes("/en") || false;
+  const statusConfig = getStatusConfig(isEnglish);
   const status = statusConfig[apt.status] || statusConfig.default;
 
   return (
@@ -430,7 +468,11 @@ const ApartmentCard = ({ apt, index, view }) => {
         {imageUrl ? (
           <CldImage
             src={imageUrl}
-            alt={`ბინა ${apt.apartment_number}`}
+            alt={
+              isEnglish
+                ? `Apartment ${apt.apartment_number}`
+                : `ბინა ${apt.apartment_number}`
+            }
             width={800}
             height={600}
             loader={cloudinaryLoader}
@@ -446,7 +488,9 @@ const ApartmentCard = ({ apt, index, view }) => {
           />
         ) : (
           <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-            <span className="text-gray-400">სურათი არ არის</span>
+            <span className="text-gray-400">
+              {isEnglish ? "No Image" : "სურათი არ არის"}
+            </span>
           </div>
         )}
         <StatusBadge status={status} />
@@ -465,22 +509,39 @@ const StatusBadge = ({ status }) => (
   </div>
 );
 
-const CardContent = ({ apt }) => (
-  <div className="p-4">
-    <div className="flex justify-between items-start mb-2">
-      <h3 className="text-lg font-semibold">ბინა {apt.apartment_number}</h3>
-      <span className="text-sm font-medium bg-gray-100 px-2 py-1 rounded">
-        ბლოკი {apt.block_name}
-      </span>
-    </div>
+const CardContent = ({ apt }) => {
+  const pathname = usePathname();
+  const isEnglish = pathname?.includes("/en") || false;
 
-    <div className="text-gray-600 space-y-2">
-      <InfoRow label="სართული" value={apt.floor} />
-      <InfoRow label="ფართი" value={`${apt.total_area} მ²`} />
-      {apt.price && <InfoRow label="ფასი" value={`$${apt.price}`} />}
+  return (
+    <div className="p-4">
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-lg font-semibold">
+          {isEnglish
+            ? `Apartment ${apt.apartment_number}`
+            : `ბინა ${apt.apartment_number}`}
+        </h3>
+        <span className="text-sm font-medium bg-gray-100 px-2 py-1 rounded">
+          {isEnglish ? `Block ${apt.block_name}` : `ბლოკი ${apt.block_name}`}
+        </span>
+      </div>
+
+      <div className="text-gray-600 space-y-2">
+        <InfoRow label={isEnglish ? "Floor" : "სართული"} value={apt.floor} />
+        <InfoRow
+          label={isEnglish ? "Area" : "ფართი"}
+          value={`${apt.total_area} ${isEnglish ? "m²" : "მ²"}`}
+        />
+        {apt.price && (
+          <InfoRow
+            label={isEnglish ? "Price" : "ფასი"}
+            value={`$${apt.price}`}
+          />
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const InfoRow = ({ label, value }) => (
   <div className="flex justify-between">
@@ -489,22 +550,36 @@ const InfoRow = ({ label, value }) => (
   </div>
 );
 
-const EmptyState = () => (
-  <div className="min-h-[200px] flex flex-col items-center justify-center bg-white rounded-xl shadow p-6 gap-4">
-    <div className="text-gray-500">ბინები ვერ მოიძებნა</div>
-    <div className="text-sm text-gray-400 text-center">
-      გთხოვთ, შეცვალოთ ფილტრის პარამეტრები საძიებლად
-    </div>
-  </div>
-);
+const EmptyState = () => {
+  const pathname = usePathname();
+  const isEnglish = pathname?.includes("/en") || false;
 
-const LoadMoreButton = ({ onClick }) => (
-  <div className="mt-8 flex justify-center">
-    <button
-      onClick={onClick}
-      className="px-6 py-2 text-white rounded-full bg-[#00326b] transition-colors hover:bg-[#002456]"
-    >
-      მეტის ნახვა
-    </button>
-  </div>
-);
+  return (
+    <div className="min-h-[200px] flex flex-col items-center justify-center bg-white rounded-xl shadow p-6 gap-4">
+      <div className="text-gray-500">
+        {isEnglish ? "No apartments found" : "ბინები ვერ მოიძებნა"}
+      </div>
+      <div className="text-sm text-gray-400 text-center">
+        {isEnglish
+          ? "Please modify your filter parameters to search"
+          : "გთხოვთ, შეცვალოთ ფილტრის პარამეტრები საძიებლად"}
+      </div>
+    </div>
+  );
+};
+
+const LoadMoreButton = ({ onClick }) => {
+  const pathname = usePathname();
+  const isEnglish = pathname?.includes("/en") || false;
+
+  return (
+    <div className="mt-8 flex justify-center">
+      <button
+        onClick={onClick}
+        className="px-6 py-2 text-white rounded-full bg-[#00326b] transition-colors hover:bg-[#002456]"
+      >
+        {isEnglish ? "Load More" : "მეტის ნახვა"}
+      </button>
+    </div>
+  );
+};
