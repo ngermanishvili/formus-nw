@@ -316,9 +316,9 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
       maxFloor = 12; // Or some reasonable default
     }
 
-    // If maxFloor is 0 (e.g., API returned 0 or error), return default floors
+    // If maxFloor is 0 (e.g., API returned 0 or error), return empty array like before
     if (maxFloor <= 0) {
-      return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // Default to 10 floors when no data is available
+      return []; // Return empty array to show no floors when no data is available
     }
 
     // Generate array from 1 to maxFloor
