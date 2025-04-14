@@ -310,58 +310,15 @@ const ProjectContent = ({ id }) => {
   if (id === "1") {
     return (
       <>
-        {/* Hero Section with Slider */}
+        {/* Hero Section with only the main image, no slider */}
         <div className="relative h-[80vh] w-full">
-          {heroImages.length > 0 && (
-            <>
-              <div className="absolute inset-0 transition-opacity duration-700 ease-in-out">
-                <Image
-                  src={heroImages[currentSlide].img}
-                  alt={heroImages[currentSlide].alt}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-
-              {/* Slider navigation buttons */}
-              {heroImages.length > 1 && (
-                <>
-                  <button
-                    onClick={prevSlide}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 z-20"
-                    aria-label="Previous slide"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 z-20"
-                    aria-label="Next slide"
-                  >
-                    <ChevronRight size={24} />
-                  </button>
-
-                  {/* Slide indicators */}
-                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
-                    {heroImages.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          setCurrentSlide(index);
-                          setIsAutoPlaying(false);
-                        }}
-                        className={`w-3 h-3 rounded-full ${
-                          currentSlide === index ? "bg-white" : "bg-white/50"
-                        }`}
-                        aria-label={`Go to slide ${index + 1}`}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-            </>
-          )}
+          <Image
+            src={projectData.main_image_url}
+            alt={projectData.title}
+            fill
+            className="object-cover"
+            priority
+          />
 
           <div className="absolute bottom-0 left-0 z-10">
             <Image
@@ -380,28 +337,26 @@ const ProjectContent = ({ id }) => {
                 {projectData.title}
               </h1>
 
-              {(id === "1" || id === 1) && (
-                <Link className="btn btn-border mt-2" href="/choose-apartment">
-                  {currentLang === "ge"
-                    ? "შეარჩიეთ ბინა"
-                    : "Choose an apartament"}
-                  <svg
-                    className="icon-16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"
-                    ></path>
-                  </svg>
-                </Link>
-              )}
+              <Link className="btn btn-border mt-2" href="/choose-apartment">
+                {currentLang === "ge"
+                  ? "შეარჩიეთ ბინა"
+                  : "Choose an apartament"}
+                <svg
+                  className="icon-16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"
+                  ></path>
+                </svg>
+              </Link>
             </div>
           </div>
         </div>
@@ -496,7 +451,6 @@ const ProjectContent = ({ id }) => {
         )}
 
         {/* Add Green Section before Interactive Section */}
-        <GreenSection />
 
         {/* Second Section */}
         <section className="relative bg-background">

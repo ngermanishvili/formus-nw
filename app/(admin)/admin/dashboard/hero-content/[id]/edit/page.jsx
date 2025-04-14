@@ -105,9 +105,7 @@ export default function EditHeroContent({ params }) {
     <div className="container mx-auto py-8">
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            Hero კონტენტის რედაქტირება
-          </CardTitle>
+       
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">

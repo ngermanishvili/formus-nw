@@ -248,7 +248,7 @@ export default function Footer5() {
             <h6
               className={`text-white/60 text-sm font-medium mb-6 lg:mr-[84px] ${georgianTextClass}`}
             >
-              {t.workingHours}
+              {/* {t.workingHours} */}
             </h6>
             <div className="flex flex-col space-y-4">
               <div className="flex items-center justify-center">

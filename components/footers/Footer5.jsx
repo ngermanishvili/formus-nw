@@ -15,6 +15,14 @@ import {
   PiYoutubeLogo,
 } from "react-icons/pi";
 
+// Default translations as a fallback
+const defaultTranslations = {
+  workingHours: "Working Hours",
+  monToFri: "Mon- Sat: 10:00 - 18:00",
+  saturday: "Sat: 11:00 - 17:00",
+  terms: "Terms & Conditions",
+};
+
 const translations = {
   en: {
     workingHours: "Working Hours",
@@ -33,7 +41,8 @@ const translations = {
 export default function Footer5() {
   const locale = useLocale();
   const pathname = usePathname();
-  const t = translations[locale];
+  // Use default translations as fallback if locale translations are not available
+  const t = translations[locale] || defaultTranslations;
   const [contactInfo, setContactInfo] = useState(null);
   const [socialLinks, setSocialLinks] = useState([]);
 
@@ -42,15 +51,34 @@ export default function Footer5() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch contact info
-        const contactResponse = await fetch("/api/contactinfo");
+        // Add timestamp to prevent caching
+        const timestamp = new Date().getTime();
+
+        // Fetch contact info with cache busting
+        const contactResponse = await fetch(`/api/contactinfo?t=${timestamp}`, {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          },
+        });
+
         const contactData = await contactResponse.json();
         if (contactData.status === "success") {
           setContactInfo(contactData.data);
         }
 
-        // Fetch social links
-        const socialResponse = await fetch("/api/social-links");
+        // Fetch social links with cache busting
+        const socialResponse = await fetch(`/api/social-links?t=${timestamp}`, {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          },
+        });
+
         const socialData = await socialResponse.json();
         if (socialData.status === "success") {
           const sortedLinks = socialData.data
@@ -64,6 +92,12 @@ export default function Footer5() {
     };
 
     fetchData();
+
+    // Set up an interval to refresh the data every minute (if user stays on the page)
+    const intervalId = setInterval(fetchData, 60000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   if (!contactInfo) {
@@ -90,6 +124,10 @@ export default function Footer5() {
   };
 
   const FooterContent = ({ isMobile }) => {
+    if (!t) {
+      return null; // Don't render if translations are not available
+    }
+
     // Add a timestamp to prevent caching
     const timestamp = new Date().getTime();
 

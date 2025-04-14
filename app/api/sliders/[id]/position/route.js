@@ -1,6 +1,7 @@
 // app/api/sliders/[id]/position/route.js
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export async function PATCH(request, { params }) {
     try {
@@ -52,10 +53,22 @@ export async function PATCH(request, { params }) {
             );
         }
 
-        return NextResponse.json({
+        // Revalidate paths to ensure data is up to date
+        revalidatePath('/');
+        revalidatePath('/api/sliders');
+        revalidatePath('/[locale]');
+
+        const response = NextResponse.json({
             status: "success",
             message: "სლაიდერის პოზიცია განახლდა"
         });
+
+        // Add cache control headers
+        response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        response.headers.set("Pragma", "no-cache");
+        response.headers.set("Expires", "0");
+
+        return response;
     } catch (error) {
         return NextResponse.json(
             {

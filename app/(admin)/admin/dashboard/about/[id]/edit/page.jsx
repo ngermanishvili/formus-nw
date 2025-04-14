@@ -14,13 +14,29 @@ import { ImagePlus } from "lucide-react";
 
 // სურათის ატვირთვის კომპონენტი
 const ImageUpload = ({ value, onChange }) => {
+  const handleSuccess = (result) => {
+    console.log("Image upload success:", result);
+    if (result?.info?.secure_url) {
+      onChange(result.info.secure_url);
+    } else {
+      console.error("No secure_url found in upload result", result);
+      toast.error("სურათის ატვირთვა ვერ მოხერხდა - URL არ მოიძებნა");
+    }
+  };
+
+  const handleError = (error) => {
+    console.error("Image upload error:", error);
+    toast.error("სურათის ატვირთვისას დაფიქსირდა შეცდომა");
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
         <Label className="text-base font-semibold mb-4 block">სურათი</Label>
         <CldUploadWidget
           uploadPreset="formus_test"
-          onSuccess={(result) => onChange(result.info.secure_url)}
+          onSuccess={handleSuccess}
+          onError={handleError}
           options={{
             maxFiles: 1,
             resourceType: "image",
@@ -49,6 +65,11 @@ const ImageUpload = ({ value, onChange }) => {
                   </div>
                 )}
               </Button>
+              {value && (
+                <p className="text-xs text-gray-500 break-all">
+                  Current image URL: {value}
+                </p>
+              )}
             </div>
           )}
         </CldUploadWidget>
@@ -60,6 +81,7 @@ const ImageUpload = ({ value, onChange }) => {
 export default function EditAbout({ params }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [formData, setFormData] = useState({
     title_ge: "",
     title_en: "",
@@ -75,9 +97,24 @@ export default function EditAbout({ params }) {
 
   useEffect(() => {
     const fetchContent = async () => {
+      setFetchLoading(true);
       try {
-        const res = await fetch(`/api/about/${params.id}`);
+        console.log("Fetching about data for ID:", params.id);
+        const res = await fetch(`/api/about/${params.id}`, {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         const data = await res.json();
+        console.log("Fetched about data:", data);
 
         if (data.status === "success" && data.data) {
           setFormData({
@@ -96,7 +133,12 @@ export default function EditAbout({ params }) {
           toast.error("მონაცემების ჩატვირთვისას დაფიქსირდა შეცდომა");
         }
       } catch (error) {
-        toast.error("მონაცემების ჩატვირთვისას დაფიქსირდა შეცდომა");
+        console.error("Error fetching about data:", error);
+        toast.error(
+          `მონაცემების ჩატვირთვისას დაფიქსირდა შეცდომა: ${error.message}`
+        );
+      } finally {
+        setFetchLoading(false);
       }
     };
 
@@ -108,13 +150,24 @@ export default function EditAbout({ params }) {
     setLoading(true);
 
     try {
+      console.log("Submitting about data:", formData);
+
       const res = await fetch(`/api/about/${params.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
         body: JSON.stringify(formData),
       });
 
+      // Log the raw response for debugging
+      console.log("Response status:", res.status);
+
       const data = await res.json();
+      console.log("Response data:", data);
 
       if (data.status === "success") {
         toast.success("ინფორმაცია წარმატებით განახლდა");
@@ -124,11 +177,21 @@ export default function EditAbout({ params }) {
         toast.error(data.message || "განახლებისას დაფიქსირდა შეცდომა");
       }
     } catch (error) {
-      toast.error("განახლებისას დაფიქსირდა შეცდომა");
+      console.error("Error updating about data:", error);
+      toast.error(`განახლებისას დაფიქსირდა შეცდომა: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
+
+  if (fetchLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">მონაცემები იტვირთება...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8">
@@ -142,7 +205,10 @@ export default function EditAbout({ params }) {
           <form onSubmit={handleSubmit} className="space-y-6">
             <ImageUpload
               value={formData.image_url}
-              onChange={(url) => setFormData({ ...formData, image_url: url })}
+              onChange={(url) => {
+                console.log("Image URL updated:", url);
+                setFormData({ ...formData, image_url: url });
+              }}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

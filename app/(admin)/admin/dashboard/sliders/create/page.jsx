@@ -22,7 +22,6 @@ export default function CreateSlider() {
     title_en: "",
     description_en: "",
     image_url: "",
-    order_position: 1,
   });
 
   const handleUploadSuccess = (result) => {
@@ -41,6 +40,9 @@ export default function CreateSlider() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
         },
         body: JSON.stringify(formData),
       });
@@ -51,6 +53,7 @@ export default function CreateSlider() {
           description: "სლაიდერი წარმატებით დაემატა",
         });
         router.push("/admin/dashboard/sliders");
+        router.refresh();
       } else {
         throw new Error("Failed to create slider");
       }
@@ -186,22 +189,6 @@ export default function CreateSlider() {
                     }))
                   }
                   className="min-h-[100px]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>პოზიცია</Label>
-                <Input
-                  type="number"
-                  placeholder="მიუთითეთ პოზიცია"
-                  value={formData.order_position}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      order_position: parseInt(e.target.value) || 1,
-                    }))
-                  }
-                  min="1"
                 />
               </div>
             </CardContent>

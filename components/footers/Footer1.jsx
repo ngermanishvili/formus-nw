@@ -163,7 +163,7 @@ export default function Footer5() {
             {/* Working Hours Section */}
             <div className="flex flex-col items-center">
               <h6 className="text-white/60 text-sm font-medium mb-4">
-                {t.workingHours}
+                {/* {t.workingHours} */}
               </h6>
               <div className="flex items-start">
                 <Clock className="text-white mr-2" size={20} />

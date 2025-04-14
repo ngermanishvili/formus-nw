@@ -30,8 +30,8 @@ export default function Page() {
         <div className="border-bottom"></div>
         <HeroSectionContent />
         <FaqLeft />
-        {projectId === "1" && <GreenSection />}
         <DownloadApp />
+        {projectId === "1" && <GreenSection />}
       </main>
       <Footer1 />
     </>

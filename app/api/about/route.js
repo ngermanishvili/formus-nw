@@ -1,6 +1,7 @@
 // app/api/about/route.js
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export async function GET() {
     try {
@@ -25,10 +26,18 @@ export async function GET() {
             ORDER BY order_position ASC
         `);
 
-        return NextResponse.json({
+        // Create response with proper cache headers
+        const response = NextResponse.json({
             status: "success",
             data: result
         });
+
+        // Add cache control headers to prevent caching
+        response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        response.headers.set("Pragma", "no-cache");
+        response.headers.set("Expires", "0");
+
+        return response;
     } catch (error) {
         console.error('API Error:', error);
         return NextResponse.json(
@@ -101,10 +110,25 @@ export async function POST(request) {
             is_active
         ]);
 
-        return NextResponse.json({
+        // Revalidate paths to ensure fresh data
+        revalidatePath('/');
+        revalidatePath('/about');
+        revalidatePath('/[locale]/about');
+        revalidatePath('/api/about');
+        revalidatePath('/admin/dashboard/about');
+
+        // Create response with proper cache headers
+        const response = NextResponse.json({
             status: "success",
             data: result[0]
         });
+
+        // Add cache control headers to prevent caching
+        response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        response.headers.set("Pragma", "no-cache");
+        response.headers.set("Expires", "0");
+
+        return response;
     } catch (error) {
         console.error('API Error:', error);
         return NextResponse.json(

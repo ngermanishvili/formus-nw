@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ProjectContent from "../../(components)/hero-content";
 import AboutProject from "../../(components)/about-project";
 import ProjectMap from "@/components/project/project-map";
+import GreenSection from "@/components/ortachala/3d-photo";
 
 export default function Page({ params }) {
   const [isMobile, setIsMobile] = useState(false);
@@ -25,6 +26,7 @@ export default function Page({ params }) {
         <ProjectContent id={params.id} />
 
         <AboutProject projectId={params.id} />
+        {params.id === "1" && <GreenSection />}
         {/* <ProjectMap /> */}
       </main>
     </>

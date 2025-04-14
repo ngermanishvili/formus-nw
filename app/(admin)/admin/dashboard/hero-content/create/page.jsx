@@ -49,24 +49,9 @@ export default function CreateHeroContent() {
   return (
     <div className="container mx-auto py-8">
       <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            Hero კონტენტის დამატება
-          </CardTitle>
-        </CardHeader>
+        <CardHeader></CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label>სურათის URL</Label>
-              <Input
-                required
-                value={formData.image_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, image_url: e.target.value })
-                }
-              />
-            </div>
-
             <div className="space-y-2">
               <Label>სათაური (ქართულად)</Label>
               <Input
