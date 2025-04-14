@@ -246,7 +246,6 @@ export default function SearchForm() {
             <p className="text-gray-500 text-sm mb-1 text-left">{t.location}</p>
             <Select
               value="tbilisi"
-              disabled
               onValueChange={(value) => handleSelect(value, "location")}
             >
               <SelectTrigger
