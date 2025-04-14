@@ -117,38 +117,140 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
     },
   ];
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [currentFilter, setCurrentFilter] = useState(null);
   const [openFilter, setOpenFilter] = useState(null);
 
+  // Initialize with URL params if provided via initialFilters
   const [filters, setFilters] = useState(() => {
-    // Initialize filters from URL query parameters or empty defaults
-    const params = new URLSearchParams(
-      typeof window !== "undefined" ? window.location.search : ""
-    );
+    // Use initialFilters if provided, otherwise use the default empty state
+    if (initialFilters) {
+      // Parse blocks to ensure they are uppercase and normalized
+      let blocks = initialFilters.blocks || [];
+      if (typeof blocks === "string") {
+        blocks = [blocks.toUpperCase()];
+      } else if (Array.isArray(blocks)) {
+        blocks = blocks.map((b) => String(b).toUpperCase());
+      }
 
-    const projectsParam = params.get("projects");
-    const floorsParam = params.get("floors");
-    const statusesParam = params.get("statuses");
-    const blocksParam = params.get("blocks");
-    const areaMinParam = params.get("totalAreaMin");
-    const areaMaxParam = params.get("totalAreaMax");
+      // Parse projects
+      let projects = initialFilters.projects || [];
+      if (projects.length > 0) {
+      }
+
+      const result = {
+        projects: initialFilters.projects || [],
+        floors: initialFilters.floors || [],
+        statuses: initialFilters.statuses || [],
+        blocks: blocks,
+        areas: initialFilters.areas || [],
+      };
+
+      return result;
+    }
 
     return {
-      projects: projectsParam ? projectsParam.split(",") : [],
-      floors: floorsParam ? floorsParam.split(",").map(Number) : [],
-      statuses: statusesParam ? statusesParam.split(",") : [],
-      blocks: blocksParam ? blocksParam.split(",") : [],
-      areas:
-        areaMinParam && areaMaxParam ? [`${areaMinParam}-${areaMaxParam}`] : [],
+      projects: [],
+      floors: [],
+      statuses: [],
+      blocks: [],
+      areas: [],
     };
   });
 
-  // Hardcoded blocks - no need to fetch from API anymore
+  const [projects, setProjects] = useState([]);
   const [availableBlocks, setAvailableBlocks] = useState([
     { id: "A", name: "A ბლოკი", block_code: "A" },
     { id: "B", name: "B ბლოკი", block_code: "B" },
     { id: "D", name: "D ბლოკი", block_code: "D" },
   ]);
+
+  // Fetch projects
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setIsLoading(true);
+        const timestamp = new Date().getTime();
+        const response = await fetch(
+          `/api/projects?isActive=true&t=${timestamp}`
+        );
+        if (response.ok) {
+          const { data } = await response.json();
+          setProjects(data);
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  // Fetch blocks for selected project
+  useEffect(() => {
+    const fetchBlocks = async () => {
+      try {
+        if (filters.projects.length === 0) {
+          // If no project selected, use default blocks with block_code
+          setAvailableBlocks([
+            { id: "A", name: "A ბლოკი", block_code: "A" },
+            { id: "B", name: "B ბლოკი", block_code: "B" },
+            { id: "D", name: "D ბლოკი", block_code: "D" },
+          ]);
+          // Also reset selected blocks and floors
+          setFilters((prev) => ({ ...prev, blocks: [], floors: [] }));
+          return;
+        }
+
+        const projectId = filters.projects[0];
+
+        // Use building_blocks API with project_id filter to get blocks for this project
+        const response = await fetch(
+          `/api/building_blocks?project_id=${projectId}`
+        );
+        if (response.ok) {
+          const { data } = await response.json();
+
+          if (data.length > 0) {
+            // Create array of objects with ID and name for blocks - use actual name from API
+            const blocksWithNames = data.map((block) => ({
+              id: block.id,
+              name: block.name,
+              name_en: block.name_en,
+              block_code: block.block_code,
+            }));
+
+            setAvailableBlocks(blocksWithNames);
+
+            // If current selected blocks contain blocks that don't belong to this project,
+            // filter them out
+            setFilters((prev) => {
+              const validBlocks = prev.blocks.filter((blockId) =>
+                blocksWithNames.some((block) => block.id === blockId)
+              );
+              if (validBlocks.length !== prev.blocks.length) {
+                return {
+                  ...prev,
+                  blocks: validBlocks,
+                };
+              }
+              return prev;
+            });
+          } else {
+            // No blocks found for this project
+            setAvailableBlocks([]);
+            setFilters((prev) => ({
+              ...prev,
+              blocks: [], // Reset blocks if none are available
+              floors: [], // Reset floors too
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching blocks:", error);
+      }
+    };
+
+    fetchBlocks();
+  }, [filters.projects]); // Re-run when selected project changes
 
   // State for total floors per block
   const [blockFloorCounts, setBlockFloorCounts] = useState({});
@@ -210,6 +312,18 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
           : [...currentValues, value];
         return { ...prev, [type]: newValues };
       });
+    } else if (type === "projects") {
+      setFilters((prev) => {
+        const currentValues = prev[type];
+        const newValues = currentValues.includes(value)
+          ? currentValues.filter((v) => v !== value)
+          : [...currentValues, value];
+
+        return {
+          ...prev,
+          [type]: newValues,
+        };
+      });
     } else if (type === "blocks") {
       setFilters((prev) => {
         const currentBlocks = prev.blocks;
@@ -253,7 +367,7 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
       queryParams.set("statuses", filters.statuses.join(","));
     }
     if (filters.blocks.length) {
-      // Map selected IDs to their corresponding block_code letters
+      // Map selected numeric IDs to their corresponding block_code letters
       const selectedBlockCodes = filters.blocks
         .map((selectedId) => {
           const block = availableBlocks.find((b) => b.id === selectedId);
@@ -316,9 +430,9 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
       maxFloor = 12; // Or some reasonable default
     }
 
-    // If maxFloor is 0 (e.g., API returned 0 or error), return empty array like before
+    // If maxFloor is 0 (e.g., API returned 0 or error), return empty or default
     if (maxFloor <= 0) {
-      return []; // Return empty array to show no floors when no data is available
+      return []; // Or maybe [1] if a single floor should always show?
     }
 
     // Generate array from 1 to maxFloor
@@ -369,6 +483,54 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
             </Link>
 
             <div className="hidden md:flex items-center gap-2">
+              {/* Project Filter Button */}
+              {/* <FilterButton
+                label={
+                  <div className="flex items-center gap-2">
+                    <span>{t.project}</span>
+                    {filters.projects.length > 0 && (
+                      <span className="w-5 h-5 rounded-full flex items-center justify-center bg-[#00326b] text-white text-xs">
+                        {filters.projects.length}
+                      </span>
+                    )}
+                  </div>
+                }
+                isActive={filters.projects.length > 0}
+                isOpen={openFilter === "projects"}
+                onToggle={() =>
+                  setOpenFilter(openFilter === "projects" ? null : "projects")
+                }
+              >
+                <div className="p-3 max-h-60 overflow-y-auto">
+                  {projects.map((project) => (
+                    <div
+                      key={project.id}
+                      className="flex items-center gap-2 py-1.5 cursor-pointer hover:bg-gray-100 px-2 rounded"
+                      onClick={() =>
+                        handleFilterToggle("projects", project.id.toString())
+                      }
+                    >
+                      <div
+                        className={`w-4 h-4 rounded border flex items-center justify-center ${
+                          filters.projects.includes(project.id.toString())
+                            ? "bg-[#00326b] border-[#00326b]"
+                            : "border-gray-400"
+                        }`}
+                      >
+                        {filters.projects.includes(project.id.toString()) && (
+                          <Check size={12} className="text-white" />
+                        )}
+                      </div>
+                      <span>
+                        {locale === "ka"
+                          ? project.title_ge
+                          : project.title_en || project.title_ge}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </FilterButton> */}
+
               {/* Block Filter Button */}
               <FilterButton
                 label={
@@ -631,6 +793,31 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
 
             {/* Mobile Filters Content */}
             <div className="space-y-6">
+              {/* Projects */}
+              <div>
+                <h3 className="text-white/90 mb-3">{t.project}</h3>
+                {/* <div className="grid grid-cols-2 gap-2">
+                  {projects.map((project) => (
+                    <button
+                      key={project.id}
+                      onClick={() =>
+                        handleFilterToggle("projects", project.id.toString())
+                      }
+                      className={`p-3 rounded-lg text-center font-medium
+                                ${
+                                  filters.projects.includes(
+                                    project.id.toString()
+                                  )
+                                    ? "bg-[#FBB200] text-black"
+                                    : "bg-white/10 text-white/90"
+                                }`}
+                    >
+                      {project.title_ge}
+                    </button>
+                  ))}
+                </div> */}
+              </div>
+
               {/* Blocks */}
               <div>
                 <h3 className="text-white/90 mb-3">{t.block}</h3>
