@@ -52,10 +52,17 @@ export async function GET() {
             `SELECT * FROM landing_sliders WHERE is_active = true ORDER BY order_position`
         );
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             status: "success",
             data: result
         });
+
+        // Add cache control headers to prevent caching
+        response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        response.headers.set("Pragma", "no-cache");
+        response.headers.set("Expires", "0");
+
+        return response;
     } catch (error) {
         console.error('Error fetching sliders:', error);
         return NextResponse.json(

@@ -1,5 +1,6 @@
 // app/api/sliders/[id]/route.js
 import { db } from "@/lib/db";
+import { revalidatePath } from 'next/cache';
 import { NextResponse } from "next/server";
 
 // სლაიდერის წაშლა
@@ -12,10 +13,22 @@ export async function DELETE(request, { params }) {
             [id]
         );
 
-        return NextResponse.json({
+        // Revalidate paths to ensure changes are reflected immediately
+        revalidatePath("/");
+        revalidatePath("/api/sliders");
+        revalidatePath("/[locale]");
+
+        const response = NextResponse.json({
             status: "success",
             message: "სლაიდერი წაიშალა"
         });
+
+        // Add cache control headers to prevent caching
+        response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        response.headers.set("Pragma", "no-cache");
+        response.headers.set("Expires", "0");
+
+        return response;
     } catch (error) {
         return NextResponse.json(
             {
@@ -54,11 +67,23 @@ export async function PATCH(request, { params }) {
             ]
         );
 
-        return NextResponse.json({
+        // Revalidate paths to ensure changes are reflected immediately
+        revalidatePath("/");
+        revalidatePath("/api/sliders");
+        revalidatePath("/[locale]");
+
+        const response = NextResponse.json({
             status: "success",
             message: "სლაიდერი განახლდა",
             data: result[0]
         });
+
+        // Add cache control headers to prevent caching
+        response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        response.headers.set("Pragma", "no-cache");
+        response.headers.set("Expires", "0");
+
+        return response;
     } catch (error) {
         return NextResponse.json(
             {
@@ -90,10 +115,17 @@ export async function GET(request, { params }) {
             );
         }
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             status: "success",
             data: result[0]
         });
+
+        // Add cache control headers to prevent caching
+        response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        response.headers.set("Pragma", "no-cache");
+        response.headers.set("Expires", "0");
+
+        return response;
     } catch (error) {
         return NextResponse.json(
             {

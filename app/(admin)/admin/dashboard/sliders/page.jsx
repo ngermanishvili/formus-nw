@@ -34,7 +34,14 @@ export default function SlidersPage() {
 
   const fetchSliders = async () => {
     try {
-      const response = await fetch("/api/sliders");
+      const response = await fetch(`/api/sliders?t=${new Date().getTime()}`, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      });
       const data = await response.json();
       if (data.status === "success") {
         setSliders(data.data);
@@ -57,6 +64,11 @@ export default function SlidersPage() {
     try {
       const response = await fetch(`/api/sliders/${id}`, {
         method: "DELETE",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
       });
 
       if (response.ok) {
@@ -65,6 +77,7 @@ export default function SlidersPage() {
           description: "სლაიდერი წაიშალა",
         });
         fetchSliders();
+        router.refresh();
       }
     } catch (error) {
       console.error("Error deleting slider:", error);
