@@ -29,7 +29,7 @@ export default function EditHeroContent({ params }) {
     title_en: "",
     title_ge: "",
     description_en: "",
-    description_ge: ""
+    description_ge: "",
   });
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function EditHeroContent({ params }) {
     setLoading(true);
     try {
       const res = await fetch(`/api/hero-content/${params.id}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
 
       const data = await res.json();
@@ -104,26 +104,17 @@ export default function EditHeroContent({ params }) {
   return (
     <div className="container mx-auto py-8">
       <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-       
-        </CardHeader>
+        <CardHeader></CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label>სურათის URL</Label>
-              <Input
-                required
-                value={formData.image}
-                onChange={(e) => setFormData({...formData, image: e.target.value})}
-              />
-            </div>
-
             <div className="space-y-2">
               <Label>სათაური (ქართულად)</Label>
               <Input
                 required
                 value={formData.title_ge}
-                onChange={(e) => setFormData({...formData, title_ge: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, title_ge: e.target.value })
+                }
               />
             </div>
 
@@ -132,7 +123,9 @@ export default function EditHeroContent({ params }) {
               <Input
                 required
                 value={formData.title_en}
-                onChange={(e) => setFormData({...formData, title_en: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, title_en: e.target.value })
+                }
               />
             </div>
 
@@ -141,7 +134,9 @@ export default function EditHeroContent({ params }) {
               <Textarea
                 required
                 value={formData.description_ge}
-                onChange={(e) => setFormData({...formData, description_ge: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, description_ge: e.target.value })
+                }
               />
             </div>
 
@@ -150,7 +145,9 @@ export default function EditHeroContent({ params }) {
               <Textarea
                 required
                 value={formData.description_en}
-                onChange={(e) => setFormData({...formData, description_en: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, description_en: e.target.value })
+                }
               />
             </div>
 
@@ -177,7 +174,8 @@ export default function EditHeroContent({ params }) {
                   <AlertDialogHeader>
                     <AlertDialogTitle>დარწმუნებული ხართ?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      ეს მოქმედება წაშლის Hero კონტენტს. ეს მოქმედება შეუქცევადია.
+                      ეს მოქმედება წაშლის Hero კონტენტს. ეს მოქმედება
+                      შეუქცევადია.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
