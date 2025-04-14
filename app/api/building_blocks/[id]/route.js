@@ -130,11 +130,12 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Fetch the specific building block from the correct table
+    // Fetch the specific building block from the building_blocks table
     const query = `
-            SELECT id, block_code, block_name as name, name_en, total_floors
-            FROM building_blocks_idk
-            WHERE id = $1
+            SELECT block_id as id, block_id as block_code, block_name as name, 
+                   name_en, total_floors
+            FROM building_blocks
+            WHERE block_id = $1
         `;
     const result = await db.query(query, [id]);
 
