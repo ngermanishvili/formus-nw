@@ -522,7 +522,9 @@ const CardContent = ({ apt }) => {
             : `ბინა ${apt.apartment_number}`}
         </h3>
         <span className="text-sm font-medium bg-gray-100 px-2 py-1 rounded">
-          {isEnglish ? `Block ${apt.block_name}` : `ბლოკი ${apt.block_name}`}
+          {isEnglish
+            ? `Block ${apt.block_name.split(" ")[0]}`
+            : `${apt.block_name}`}
         </span>
       </div>
 

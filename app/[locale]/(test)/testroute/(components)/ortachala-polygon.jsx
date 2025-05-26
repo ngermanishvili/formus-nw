@@ -9,6 +9,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import ApartmentFilters from "@/components/apartment/filters";
 import FormusLogo from "@/public/assets/imgs/ortachala/formus.svg";
 import Image from "next/image";
+import { useLocale } from "next-intl";
 
 const IMAGES = {
   first:
@@ -17,6 +18,29 @@ const IMAGES = {
 
 const VIEW_BOX = {
   first: "0 0 3906 2200",
+};
+
+const pageTextContent = {
+  apartments: {
+    ka: "სულ ბინები",
+    en: "All Apartments",
+  },
+  available: {
+    ka: "ხელმისაწვდომი",
+    en: "Available",
+  },
+  sold: {
+    ka: "გაყიდული",
+    en: "Sold",
+  },
+  avgarea: {
+    ka: "საშუალო ფართი",
+    en: "Average area",
+  },
+  squaremeter: {
+    ka: "მ²",
+    en: "m²",
+  },
 };
 
 const api = {
@@ -385,6 +409,13 @@ const OrtachalaPolygon = () => {
       console.log("Selected polygon state updated:", selectedPolygon);
     }
   }, [selectedPolygon]);
+  const locale = useLocale(); // Get the current locale
+  const getText = (textObj) => {
+    if (textObj && typeof textObj === "object") {
+      return textObj[locale] || textObj["en"] || ""; // Fallback to English if current locale's text is missing
+    }
+    return "";
+  };
 
   return (
     <div className="relative w-full">
@@ -437,7 +468,7 @@ const OrtachalaPolygon = () => {
 
                   <div className="bg-white/10 rounded-lg p-3 lg:p-4">
                     <div className="text-xs lg:text-sm text-gray-400">
-                      სულ ბინა
+                      {getText(pageTextContent.apartments)}
                     </div>
                     <div className="text-base lg:text-lg font-semibold text-white">
                       {
@@ -452,7 +483,7 @@ const OrtachalaPolygon = () => {
 
                   <div className="bg-white/10 rounded-lg p-3 lg:p-4">
                     <div className="text-xs lg:text-sm text-gray-400">
-                      ხელმისაწვდომი
+                      {getText(pageTextContent.available)}
                     </div>
                     <div className="text-base lg:text-lg font-semibold text-green-400">
                       {
@@ -468,7 +499,7 @@ const OrtachalaPolygon = () => {
 
                   <div className="bg-white/10 rounded-lg p-3 lg:p-4">
                     <div className="text-xs lg:text-sm text-gray-400">
-                      გაყიდული
+                      {getText(pageTextContent.sold)}
                     </div>
                     <div className="text-base lg:text-lg font-semibold text-red-400">
                       {
@@ -484,7 +515,7 @@ const OrtachalaPolygon = () => {
 
                   <div className="bg-white/10 rounded-lg p-3 lg:p-4">
                     <div className="text-xs lg:text-sm text-gray-400">
-                      საშუალო ფართი
+                      {getText(pageTextContent.avgarea)}
                     </div>
                     <div className="text-base lg:text-lg font-semibold text-blue-400">
                       {(
@@ -504,7 +535,7 @@ const OrtachalaPolygon = () => {
                               apt.block_id === selectedPolygon.block_id
                           ).length || 0
                       ).toFixed(1)}{" "}
-                      მ²
+                      {getText(pageTextContent.squaremeter)}
                     </div>
                   </div>
                 </div>
