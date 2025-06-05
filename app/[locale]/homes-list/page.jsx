@@ -2,9 +2,6 @@
 
 import { useState, useEffect } from "react";
 import ApartmentList from "@/components/fleet-list/ApartmentList";
-import Footer1 from "@/components/footers/Footer1";
-import Header5 from "@/components/headers/Header5";
-import MobailHeader1 from "@/components/headers/MobailHeader1";
 import { useSearchParams } from "next/navigation";
 
 export default function HomesListPage() {

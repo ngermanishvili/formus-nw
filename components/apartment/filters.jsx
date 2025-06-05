@@ -123,9 +123,6 @@ const FloorFilters = (props) => {
     });
 
     const newQuery = currentParams.toString();
-    console.log(
-      `[FloorFilters] updateFiltersInUrl: Pushing URL: ${pathname}?${newQuery}`
-    );
     router.push(`${pathname}?${newQuery}`, { scroll: false });
     setOpenFilter(null);
     setIsDrawerOpen(false);
@@ -133,9 +130,6 @@ const FloorFilters = (props) => {
 
   const handleFilterToggle = useCallback(
     (type, value) => {
-      console.log(
-        `[FloorFilters] handleFilterToggle: type=${type}, value=${value}`
-      );
       const currentValues = activeFilters[type] || [];
       let newValues;
 
@@ -144,11 +138,6 @@ const FloorFilters = (props) => {
       } else {
         newValues = [...currentValues, value];
       }
-      console.log(
-        `[FloorFilters] handleFilterToggle: currentValues=${JSON.stringify(
-          currentValues
-        )}, newValues=${JSON.stringify(newValues)}`
-      );
 
       updateFiltersInUrl({ ...activeFilters, [type]: newValues });
     },
@@ -187,7 +176,7 @@ const FloorFilters = (props) => {
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
             <Link
-              href={pathname.includes("/floor") ? "/choose-apartment" : "/"}
+              href={`/${locale}/choose-apartment`}
               className="items-center gap-2 px-4 py-2 rounded-lg 
             bg-[#FBB200] font-medium
             transition-colors duration-200
@@ -323,7 +312,7 @@ const FloorFilters = (props) => {
                     queryParams.set("statuses", "available");
                   }
                   router.push(
-                    `/${locale}/homes-list?${queryParams.toString()}`,
+                    `/${locale}/homes-list?projects=1&${queryParams.toString()}`,
                     { scroll: true }
                   );
                 }}

@@ -2,7 +2,7 @@
 import React, { useState, memo, useEffect } from "react";
 import { useParams } from "next/navigation";
 import LoadingOverlay from "@/components/loader/loader";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
 import RoomAreas from "../(components)/room-area";
 import { CldImage } from "next-cloudinary";
@@ -112,6 +112,7 @@ const Polygon = memo(({ data, isHovered, onHover, onClick, isMobile, t }) => {
 const FloorDetails = () => {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const locale = useLocale();
   const t = translations[locale];
 
@@ -121,6 +122,47 @@ const FloorDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Read URL parameters for filters
+  const getInitialFilters = () => {
+    const filters = {
+      projects: [],
+      floors: [],
+      statuses: [],
+      blocks: [],
+      areas: [],
+    };
+
+    // Parse floors parameter
+    const floorsParam = searchParams.get("floors");
+    if (floorsParam) {
+      filters.floors = floorsParam
+        .split(",")
+        .map((f) => parseInt(f, 10))
+        .filter((f) => !isNaN(f));
+    }
+
+    // Parse blocks parameter
+    const blocksParam = searchParams.get("blocks");
+    if (blocksParam) {
+      filters.blocks = blocksParam.split(",").map((b) => b.toUpperCase());
+    }
+
+    // Parse statuses parameter
+    const statusesParam = searchParams.get("statuses");
+    if (statusesParam) {
+      filters.statuses = statusesParam.split(",");
+    }
+
+    // Parse area parameters
+    const totalAreaMin = searchParams.get("totalAreaMin");
+    const totalAreaMax = searchParams.get("totalAreaMax");
+    if (totalAreaMin && totalAreaMax) {
+      filters.areas = [`${totalAreaMin}-${totalAreaMax}`];
+    }
+
+    return filters;
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -202,7 +244,7 @@ const FloorDetails = () => {
       <div className="flex flex-col mt-[100px]">
         <div className="container mx-auto px-4 py-4">
           <div className="max-w-3xl mx-auto mb-6">
-            <FloorFilters />
+            <FloorFilters initialFilters={getInitialFilters()} />
           </div>
           <h2 className="text-2xl font-bold text-center mb-4">
             {t.chooseApartment}

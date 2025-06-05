@@ -140,7 +140,7 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
         projects: initialFilters.projects || [],
         floors: initialFilters.floors || [],
         statuses: initialFilters.statuses || [],
-        blocks: blocks,
+        blocks: blocks, // These are block_codes like ["A", "B"]
         areas: initialFilters.areas || [],
       };
 
@@ -167,7 +167,6 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        setIsLoading(true);
         const timestamp = new Date().getTime();
         const response = await fetch(
           `/api/projects?isActive=true&t=${timestamp}`
@@ -367,19 +366,9 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
       queryParams.set("statuses", filters.statuses.join(","));
     }
     if (filters.blocks.length) {
-      // Map selected numeric IDs to their corresponding block_code letters
-      const selectedBlockCodes = filters.blocks
-        .map((selectedId) => {
-          const block = availableBlocks.find((b) => b.id === selectedId);
-          // Return the block_code if found, otherwise null (shouldn't happen ideally)
-          return block ? block.block_code : null;
-        })
-        .filter((code) => code !== null); // Filter out any potential nulls
-
-      // Only set the query parameter if we have valid block codes
-      if (selectedBlockCodes.length > 0) {
-        queryParams.set("blocks", selectedBlockCodes.join(","));
-      }
+      // filters.blocks already contains block_codes (e.g., ["A", "B"])
+      // so we can use them directly
+      queryParams.set("blocks", filters.blocks.join(","));
     }
     if (filters.areas.length && filters.areas[0]) {
       const parts = filters.areas[0].split("-");
@@ -396,9 +385,17 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
       onSearch(filters);
     }
 
-    // Update the URL with the new search parameters
-    const newPath = `${pathname}?${queryParams.toString()}`;
-    router.push(newPath, { scroll: false }); // Use shallow routing
+    // Determine target path based on current pathname
+    let targetPath;
+    if (pathname.includes("/floor")) {
+      // If we're on a floor page, redirect to homes-list with filters
+      targetPath = `/${locale}/homes-list?projects=1&${queryParams.toString()}`;
+    } else {
+      // Otherwise, stay on current page with updated query params
+      targetPath = `${pathname}?${queryParams.toString()}`;
+    }
+
+    router.push(targetPath, { scroll: false });
 
     // Close the drawer
     setIsDrawerOpen(false);
@@ -414,9 +411,17 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
 
     // If blocks are selected, find the max floor count among selected blocks
     if (filters.blocks.length > 0) {
+      // Convert block_codes to block IDs for lookup
+      const selectedBlockIds = filters.blocks
+        .map((blockCode) => {
+          const block = availableBlocks.find((b) => b.block_code === blockCode);
+          return block ? block.id : null;
+        })
+        .filter((id) => id !== null);
+
       maxFloor = Math.max(
         0, // Ensure Math.max doesn't return -Infinity if all counts are 0
-        ...filters.blocks.map((blockId) => getBlockFloorCount(blockId))
+        ...selectedBlockIds.map((blockId) => getBlockFloorCount(blockId))
       );
     }
     // If no blocks selected, find the max floor count among ALL available blocks
@@ -471,7 +476,7 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
         <div className="max-w-[1400px] mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
             <Link
-              href={pathname.includes("/floor") ? "/choose-apartment" : "/"}
+              href={`/${locale}/choose-apartment`}
               className=" items-center gap-2 px-4 py-2 rounded-lg
              bg-[#FBB200] font-medium
              transition-colors duration-200
@@ -543,11 +548,11 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
                         </span>
                         <span className="ml-1 text-xs max-w-[80px] truncate">
                           {filters.blocks
-                            .map((blockId) => {
+                            .map((blockCode) => {
                               const block = availableBlocks.find(
-                                (b) => b.id === blockId
+                                (b) => b.block_code === blockCode
                               );
-                              return block ? getBlockName(block) : blockId;
+                              return block ? getBlockName(block) : blockCode;
                             })
                             .join(", ")}
                         </span>
@@ -566,16 +571,18 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
                     <div
                       key={block.id}
                       className="flex items-center gap-2 py-1.5 cursor-pointer hover:bg-gray-100 px-2 rounded"
-                      onClick={() => handleFilterToggle("blocks", block.id)}
+                      onClick={() =>
+                        handleFilterToggle("blocks", block.block_code)
+                      }
                     >
                       <div
                         className={`w-4 h-4 rounded border flex items-center justify-center ${
-                          filters.blocks.includes(block.id)
+                          filters.blocks.includes(block.block_code)
                             ? "bg-[#00326b] border-[#00326b]"
                             : "border-gray-400"
                         }`}
                       >
-                        {filters.blocks.includes(block.id) && (
+                        {filters.blocks.includes(block.block_code) && (
                           <Check size={12} className="text-white" />
                         )}
                       </div>
@@ -825,10 +832,12 @@ const FloorFilters = ({ initialFilters, onSearch }) => {
                   {availableBlocks.map((block) => (
                     <button
                       key={block.id}
-                      onClick={() => handleFilterToggle("blocks", block.id)}
+                      onClick={() =>
+                        handleFilterToggle("blocks", block.block_code)
+                      }
                       className={`p-3 rounded-lg text-center font-medium
                                 ${
-                                  filters.blocks.includes(block.id)
+                                  filters.blocks.includes(block.block_code)
                                     ? "bg-[#FBB200] text-black"
                                     : "bg-white/10 text-white/90"
                                 }`}
