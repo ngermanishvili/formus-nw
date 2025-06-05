@@ -521,7 +521,7 @@ const CardContent = ({ apt }) => {
             ? `Apartment ${apt.apartment_number}`
             : `ბინა ${apt.apartment_number}`}
         </h3>
-        <span className="text-sm font-medium bg-gray-100 px-2 py-1 rounded max-md:text-black">
+        <span className="text-sm font-medium  px-2 text-black py-1 rounded max-md:text-black">
           {isEnglish
             ? `Block ${apt.block_name.split(" ")[0]}`
             : `${apt.block_name}`}
