@@ -124,13 +124,12 @@ const ProjectContent = ({ id }) => {
             priority
           />
           <div className="absolute bottom-0 left-0 z-10">
-            <Image
-              src={SecondShape2}
+            <img
+              src="/assets/shapes/project/1.png"
               alt="Bottom shape"
               width={300}
               height={300}
               className="w-[150px] h-[150px] sm:w-[200px] sm:h-[200px] md:w-[250px] md:h-[250px] lg:w-[300px] lg:h-[300px] object-contain"
-              priority
             />
           </div>
           <div className="absolute inset-0 bg-black/50" />
@@ -177,8 +176,8 @@ const ProjectContent = ({ id }) => {
 
               {/* Decorative shape - positioned below content */}
               <div className="absolute left-[-14px] bottom-[230px] z-10">
-                <Image
-                  src={BreadCumpShape}
+                <img
+                  src="/assets/shapes/home/2.png"
                   alt="Decorative shape"
                   width={90}
                   height={90}

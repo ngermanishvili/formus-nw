@@ -58,7 +58,7 @@ const ContactModal = ({ isOpen, setIsOpen }) => {
     phone: "",
   });
   const [acceptTerms, setAcceptTerms] = useState({
-    terms1: false,
+    terms1: true,
     terms2: false,
   });
 
@@ -99,7 +99,7 @@ const ContactModal = ({ isOpen, setIsOpen }) => {
             text: translations.success[locale],
           });
           setFormData({ name: "", phone: "" });
-          setAcceptTerms({ terms1: false, terms2: false });
+          setAcceptTerms({ terms1: true, terms2: false });
           setTimeout(() => setIsOpen(false), 2000);
         } else {
           setSubmitMessage({

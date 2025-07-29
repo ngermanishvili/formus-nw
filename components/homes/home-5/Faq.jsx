@@ -36,8 +36,8 @@ export default function Faq() {
             <div className="max-w-[400px] mb-[220px]  min-[2000px]:mb-52  max-sm:p-10 max-sm:mt-32">
               <div className="relative mb-4">
                 <div className="absolute left-[-30px] top-[0px]">
-                  <Image
-                    src={TitleShape}
+                  <img
+                    src="/assets/shapes/home/2.png"
                     alt="Decorative shape"
                     width={80}
                     height={80}

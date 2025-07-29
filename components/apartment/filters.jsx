@@ -125,7 +125,7 @@ const FloorFilters = (props) => {
     const newQuery = currentParams.toString();
     router.push(`${pathname}?${newQuery}`, { scroll: false });
     setOpenFilter(null);
-    setIsDrawerOpen(false);
+    // არ ვხუროთ drawer ფილტრების არჩევისას
   };
 
   const handleFilterToggle = useCallback(
@@ -150,6 +150,7 @@ const FloorFilters = (props) => {
       floors: [],
       statuses: [],
     });
+    setIsDrawerOpen(false);
   }, [updateFiltersInUrl]);
 
   const getAvailableFloors = () => {
@@ -370,38 +371,6 @@ const FloorFilters = (props) => {
         )}
       </button>
 
-      {/* Mobile Search Button */}
-      <button
-        onClick={() => {
-          const queryParams = new URLSearchParams();
-          if (activeFilters.blocks.length) {
-            queryParams.set("blocks", activeFilters.blocks.join(","));
-          }
-          if (activeFilters.floors.length) {
-            queryParams.set("floors", activeFilters.floors.join(","));
-          }
-          if (activeFilters.statuses.length) {
-            queryParams.set("statuses", activeFilters.statuses.join(","));
-          }
-          // Always add available as default status if no status is selected
-          if (!activeFilters.statuses.length) {
-            queryParams.set("statuses", "available");
-          }
-          router.push(`/${locale}/homes-list?${queryParams.toString()}`, {
-            scroll: true,
-          });
-        }}
-        className={`relative p-3 rounded-md bg-[#FBB200] hover:bg-[#FBB200]/90 text-black shadow-xl transition-all duration-200 z-0 md:hidden flex items-center gap-2 mr-1 ${
-          pathname.includes("/choose-apartment")
-            ? "absolute mt-[64%] right-0"
-            : "bottom-6 right-6"
-        }`}
-        disabled={activeFiltersCount === 0}
-      >
-        <Search size={20} />
-        <span className="font-medium">{t.search}</span>
-      </button>
-
       {isDrawerOpen && (
         <>
           <div
@@ -516,9 +485,10 @@ const FloorFilters = (props) => {
                       queryParams.set("statuses", "available");
                     }
                     router.push(
-                      `/${locale}/homes-list?${queryParams.toString()}`,
+                      `/${locale}/homes-list?projects=1&${queryParams.toString()}`,
                       { scroll: true }
                     );
+                    setIsDrawerOpen(false);
                   }}
                   className="flex-1 bg-[#FBB200] hover:bg-[#FBB200]/90 text-black"
                   disabled={activeFiltersCount === 0}

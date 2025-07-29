@@ -4,9 +4,6 @@ import { useRouter } from "next/navigation";
 import { Link, usePathname } from "@/src/i18n/routing";
 import { useLocale } from "next-intl";
 import { Menu, X, Phone } from "lucide-react";
-import Image from "next/image";
-import Logo from "@/public/assets/imgs/logo/formus-header1.png";
-import LogoGe from "@/public/assets/imgs/logo/formus-header-ge.png";
 
 const MobileHeader = ({ routes, languageNames }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -80,12 +77,14 @@ const MobileHeader = ({ routes, languageNames }) => {
             </button>
             <Link href={`/${locale}`} className="text-white text-xl font-bold">
               <div className="w-28 h-10 relative">
-                <Image
-                  src={locale === "ka" ? LogoGe : Logo}
+                <img
+                  src={
+                    locale === "ka"
+                      ? "/assets/imgs/logo/formus-header-ge.png"
+                      : "/assets/imgs/logo/formus-header1.png"
+                  }
                   alt="Formus Logo"
-                  fill
-                  style={{ objectFit: "cover" }}
-                  priority
+                  className="w-full h-full object-cover"
                 />
               </div>
             </Link>
@@ -117,12 +116,14 @@ const MobileHeader = ({ routes, languageNames }) => {
                 className="text-white text-xl font-bold"
               >
                 <div className="w-28 h-10 relative">
-                  <Image
-                    src={locale === "ka" ? LogoGe : Logo}
+                  <img
+                    src={
+                      locale === "ka"
+                        ? "/assets/imgs/logo/formus-header-ge.png"
+                        : "/assets/imgs/logo/formus-header1.png"
+                    }
                     alt="Formus Logo"
-                    fill
-                    style={{ objectFit: "cover" }}
-                    priority
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </Link>

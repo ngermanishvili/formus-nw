@@ -92,7 +92,11 @@ const InteractiveSection = ({ projectData, currentLang }) => {
             className="hidden lg:block absolute  bottom-[-12px] right-0 w-[500px] xl:w-[500px]"
             style={{ zIndex: 10, pointerEvents: "none" }}
           >
-            <Image src={SecondShape1} alt="Shape" className="object-contain" />
+            <img
+              src="/assets/shapes/project/3.png"
+              alt="Shape"
+              className="object-contain w-full h-full"
+            />
           </div>
         </div>
       </div>

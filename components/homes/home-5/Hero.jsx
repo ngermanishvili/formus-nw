@@ -1,12 +1,10 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import LeftomBottomShape from "@/public/assets/shapes/home/1.png";
 
 const baseSettings = {
   modules: [Autoplay],
@@ -157,13 +155,12 @@ export default function Hero() {
           <div className="container-sub px-4 md:px-8"></div>
         </div>
         <div className="absolute bottom-0 right-0 z-10">
-          <Image
-            src={LeftomBottomShape}
+          <img
+            src="/assets/shapes/home/1.png"
             alt="Bottom shape"
             width={500}
             height={400}
             className="h-auto md:w-[500px] sm:w-[300px] w-[200px] transform-none"
-            priority
           />
         </div>
       </div>

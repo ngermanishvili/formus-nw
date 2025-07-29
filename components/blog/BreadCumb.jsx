@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import { useLocale } from "next-intl";
-import BreadCumpShape from "@/public/assets/shapes/home/2.png";
 
 const translations = {
   en: {
@@ -23,8 +21,8 @@ export default function BreadCumb() {
     <div className="section pt-60 mt-[50px] bg-white relative">
       <div className="container-sub relative">
         <div className="absolute mr-[24px]  top-[20px] transform -translate-y-1/2">
-          <Image
-            src={BreadCumpShape}
+          <img
+            src="/assets/shapes/home/2.png"
             alt={t.decorativeShape}
             width={90}
             height={90}

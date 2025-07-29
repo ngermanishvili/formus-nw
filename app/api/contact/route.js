@@ -14,8 +14,8 @@ const PHONE_REGEX = /^\d{9,}$/;
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'nikagermanishvili5@gmail.com',
-        pass: 'gkko zoxo imet apud'
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
     }
 });
 
@@ -95,7 +95,7 @@ export async function POST(req) {
         });
 
         const mailOptions = {
-            from: 'nikagermanishvili5@gmail.com',
+            from: process.env.GMAIL_USER,
             to: 'info@formus.ge',
             subject: `ახალი მოთხოვნა - ${sanitizedData.fullname}`,
             html: `

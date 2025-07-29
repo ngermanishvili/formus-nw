@@ -6,9 +6,6 @@ import { Link, usePathname } from "@/src/i18n/routing";
 import { useLocale } from "next-intl";
 import { Phone } from "lucide-react";
 import MobileHeader1 from "@/components/headers/MobailHeader1";
-import Image from "next/image";
-import Logo from "@/public/assets/imgs/logo/formus-header1.png";
-import LogoGe from "@/public/assets/imgs/logo/formus-header-ge.png";
 
 const routes = [
   {
@@ -165,7 +162,6 @@ export default function Header5() {
       <div className="block min-[940px]:hidden">
         <MobileHeader1 routes={routes} languageNames={languageNames} />
       </div>
-
       <div className="hidden min-[940px]:block">
         <header
           className={`fixed w-full flex justify-center top-0 z-50 bg-[#00326B] transition-all duration-300 ${
@@ -180,12 +176,14 @@ export default function Header5() {
                 className="text-white text-lg font-bold font-firago"
               >
                 <div className="w-28 h-10 relative">
-                  <Image
-                    src={locale === "ka" ? LogoGe : Logo}
+                  <img
+                    src={
+                      locale === "ka"
+                        ? "/assets/imgs/logo/formus-header-ge.png"
+                        : "/assets/imgs/logo/formus-header1.png"
+                    }
                     alt="Formus Logo"
-                    fill
-                    style={{ objectFit: "cover" }}
-                    priority
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </Link>
