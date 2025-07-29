@@ -2,6 +2,10 @@ import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 // ყველა სოციალური ქსელის წამოღება
 export async function GET() {
     try {

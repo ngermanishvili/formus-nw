@@ -2,6 +2,10 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 export async function PUT(request, { params }) {
     console.log('Starting bulk update for block:', params.blockId);
 

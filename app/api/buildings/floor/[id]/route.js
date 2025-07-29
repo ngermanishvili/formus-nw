@@ -2,6 +2,10 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request, { params }) {
     try {
         console.log('1. API Request started, floor ID:', params.id);

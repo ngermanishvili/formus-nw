@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+// Prevent static generation
+export const dynamic = 'force-dynamic';
 
 // Rate limiting 
 const RATE_LIMIT_WINDOW = 3600000; // 1 hour
@@ -10,14 +13,8 @@ const requestLog = new Map();
 // Validation 
 const PHONE_REGEX = /^\d{9,}$/;
 
-// Nodemailer transporter
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD
-    }
-});
+// Resend instance
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 function checkRateLimit(ip) {
     const now = Date.now();
@@ -94,11 +91,7 @@ export async function POST(req) {
             minute: '2-digit'
         });
 
-        const mailOptions = {
-            from: process.env.GMAIL_USER,
-            to: 'info@formus.ge',
-            subject: `ახალი მოთხოვნა - ${sanitizedData.fullname}`,
-            html: `
+        const emailHtml = `
             <!DOCTYPE html>
             <html>
                 <head>
@@ -297,15 +290,28 @@ export async function POST(req) {
                     </div>
                 </body>
             </html>
-            `
-        };
+        `;
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully:', info);
+        const { data, error } = await resend.emails.send({
+            from: process.env.FROM_EMAIL || 'onboarding@formus.ge',
+            to: process.env.TO_EMAIL || 'info@formus.ge',
+            subject: `ახალი მოთხოვნა - ${sanitizedData.fullname}`,
+            html: emailHtml
+        });
+
+        if (error) {
+            console.error('Resend error:', error);
+            return NextResponse.json({
+                error: 'შეტყობინების გაგზავნა ვერ მოხერხდა',
+                details: error.message
+            }, { status: 500 });
+        }
+
+        console.log('Email sent successfully:', data);
 
         return NextResponse.json({
             message: 'მონაცემები წარმატებით გაიგზავნა',
-            info: info
+            info: data
         }, { status: 200 });
 
     } catch (error) {

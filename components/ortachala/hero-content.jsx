@@ -42,8 +42,8 @@ const ProjectContent = ({ id }) => {
                   ? JSON.parse(project.features_ge)
                   : project.features_ge
                 : typeof project.features_en === "string"
-                ? JSON.parse(project.features_en)
-                : project.features_en;
+                  ? JSON.parse(project.features_en)
+                  : project.features_en;
 
             setProjectData({
               title: currentLang === "ge" ? project.title_ge : project.title_en,
@@ -123,15 +123,7 @@ const ProjectContent = ({ id }) => {
             className="object-cover"
             priority
           />
-          <div className="absolute bottom-0 left-0 z-10">
-            <img
-              src="/assets/shapes/project/1.png"
-              alt="Bottom shape"
-              width={300}
-              height={300}
-              className="w-[150px] h-[150px] sm:w-[200px] sm:h-[200px] md:w-[250px] md:h-[250px] lg:w-[300px] lg:h-[300px] object-contain"
-            />
-          </div>
+
           <div className="absolute inset-0 bg-black/50" />
           <div className="absolute inset-0 flex items-center">
             <div className="container mx-auto px-4">

@@ -1,6 +1,10 @@
 // app/api/auth/logout/route.js
 import { NextResponse } from 'next/server';
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(request) {
     try {
         const response = NextResponse.json({

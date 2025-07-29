@@ -145,7 +145,12 @@ const AboutFormus = () => {
     if (locale === "en") {
       return title.split(" for ").join("\n for ");
     } else {
-      return title.split(" შენებისთვის").join("\nშენებისთვის");
+      // Split by "შენებისთვის" and wrap the first part in bold, second part in normal
+      const parts = title.split("შენებისთვის");
+      if (parts.length === 2) {
+        return `<span class="font-bold">${parts[0]}</span>\n<span class="font-thin">შენებისთვის</span>`;
+      }
+      return title;
     }
   };
 
@@ -188,7 +193,7 @@ const AboutFormus = () => {
               <img
                 src={aboutData[0].image_url}
                 alt="Formus Building Complex"
-                className="w-full h-[800px] max-w-[1200px] object-cover object-bottom rounded-2xl shadow-lg"
+                className="w-full md:h-[500px] h-[300px] max-w-[1200px] object-cover object-bottom rounded-2xl shadow-lg"
               />
             ) : (
               <SkeletonPlaceholder
@@ -203,7 +208,7 @@ const AboutFormus = () => {
               <div className="z-0">
                 {hasMounted && aboutData.length > 1 && aboutData[1] ? (
                   <h2
-                    className="text-3xl font-bold mb-6 text-gray-900 font-firago flex items-center min-h-[90px]"
+                    className="text-3xl mb-6 text-gray-900 font-firago flex flex-col justify-center min-h-[90px] whitespace-pre-line"
                     style={{
                       backgroundImage: `url(${BreadCumpShape.src})`, // Correctly use .src and url()
                       backgroundRepeat: "no-repeat",
@@ -211,9 +216,12 @@ const AboutFormus = () => {
                       backgroundSize: "90px 90px",
                       paddingLeft: "",
                     }}
-                  >
-                    {getLocalizedField(aboutData[1], "title")}
-                  </h2>
+                    dangerouslySetInnerHTML={{
+                      __html: formatTitle(
+                        getLocalizedField(aboutData[1], "title")
+                      ),
+                    }}
+                  />
                 ) : (
                   <h2
                     className="text-3xl font-bold mb-6 text-gray-900 font-firago flex items-center min-h-[90px]"

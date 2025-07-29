@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         // გავგზავნოთ მოთხოვნა migrate-db ენდპოინტზე

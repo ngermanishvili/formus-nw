@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
+// Prevent static generation
 
 // ყველა გალერეის ფოტოს წამოღება
 export async function GET(request) {

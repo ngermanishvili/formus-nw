@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 // მიიღებს ყველა ბლოკს building_blocks ცხრილიდან
 export async function GET(request) {
   try {

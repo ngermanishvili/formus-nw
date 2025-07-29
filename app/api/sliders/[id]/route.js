@@ -3,6 +3,10 @@ import { db } from "@/lib/db";
 import { revalidatePath } from 'next/cache';
 import { NextResponse } from "next/server";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 // სლაიდერის წაშლა
 export async function DELETE(request, { params }) {
     try {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import createProjectBlocksTable from "./create-project-blocks-table";
 import handler from "./add-project-data";
 
-export const dynamic = "force-dynamic";
+// Prevent static generation
 
 /**
  * API endpoint to run all database migrations

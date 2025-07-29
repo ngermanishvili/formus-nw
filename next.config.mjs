@@ -4,6 +4,8 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.js');
 
 const nextConfig = {
+    // Increase static generation timeout
+    staticPageGenerationTimeout: 120,
     webpack: (config) => {
         config.infrastructureLogging = { level: 'error' };
         config.module.rules.push({

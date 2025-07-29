@@ -141,7 +141,7 @@ export default function Footer5() {
       >
         {/* Logo and Social Media Section */}
         <div
-          className={`py-8 border-b border-gray-700 ${isMobile ? "px-4" : ""}`}
+          className={`py-8 border-b border-gray-700 ${isMobile ? "px-4 ml-[20px]" : ""}`}
         >
           <div
             className={`flex flex-col ${
@@ -152,7 +152,9 @@ export default function Footer5() {
           >
             <div
               className={`${
-                isMobile ? "w-[120px]" : "w-[150px] translate-x-[-30%]"
+                isMobile
+                  ? "w-[120px] ml-[20px]"
+                  : "w-[150px] translate-x-[-30%]"
               }`}
             >
               <Link href={`/${locale}`}>

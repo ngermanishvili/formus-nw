@@ -3,6 +3,10 @@ import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 export async function PUT(request, { params }) {
   try {
     const { id } = params;

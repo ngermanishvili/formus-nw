@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 /**
  * Function to add name_en field to building_blocks table
  */

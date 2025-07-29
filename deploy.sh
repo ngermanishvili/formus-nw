@@ -2,7 +2,7 @@
 
 # დეპლოიმენტ სკრიპტი სერვერისთვის
 # გამოყენება: ./deploy.sh
-
+#udfvgtwCpSbQ2os
 SERVER_IP="167.71.58.161"
 SERVER_USER="root"
 APP_DIR="/var/www/formus-app"
@@ -11,8 +11,8 @@ APP_DIR="/var/www/formus-app"
 echo "🚀 იწყება დეპლოიმენტი..."
 
 # 1. ლოკალური ბილდი (თუ გსურთ)
-echo "📦 ლოკალური ბილდის შექმნა..."
-npm run build
+# echo "📦 ლოკალური ბილდის შექმნა..."
+# npm run build
 
 # 2. ფაილების ატვირთვა სერვერზე (node_modules-ის გარეშე)
 echo "📤 ფაილების ატვირთვა სერვერზე..."
@@ -20,7 +20,6 @@ rsync -avz --progress \
   --exclude 'node_modules' \
   --exclude '.next' \
   --exclude '.git' \
-  --exclude '.env.local' \
   --exclude '.DS_Store' \
   --exclude '*.log' \
   --exclude 'coverage' \
@@ -33,12 +32,8 @@ echo "🔧 სერვერზე დამზადება..."
 ssh ${SERVER_USER}@${SERVER_IP} << 'EOF'
 cd /var/www/formus-app
 
-# Node.js და npm ინსტალაცია (თუ არ არის)
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-apt-get install -y nodejs
 
-# PM2 ინსტალაცია (process manager-ისთვის)
-npm install -g pm2
+
 
 # Dependencies-ის ინსტალაცია
 npm install

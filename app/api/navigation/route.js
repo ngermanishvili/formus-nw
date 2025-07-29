@@ -2,6 +2,10 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 // app/api/navigation/route.js
 export async function GET() {
     try {

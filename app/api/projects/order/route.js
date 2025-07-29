@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(request) {
     try {
         const { projects } = await request.json();

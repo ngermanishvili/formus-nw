@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
+// Prevent static generation
+export const dynamic = 'force-dynamic';
 
 // კონკრეტული სლაიდერის ფოტოს წამოღება
 export async function GET(request, { params }) {

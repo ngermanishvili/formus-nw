@@ -2,6 +2,9 @@ import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import addMapUrlToProjects from "../db/migrations/add-map-url-to-projects";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
     try {
         const { operation } = await request.json();

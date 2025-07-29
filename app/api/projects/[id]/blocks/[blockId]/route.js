@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 // Delete a block from a project
 export async function DELETE(request, { params }) {
     try {

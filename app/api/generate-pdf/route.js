@@ -4,6 +4,10 @@ import { NextResponse } from "next/server";
 import ReactPDF from "@react-pdf/renderer";
 import ApartmentPDF from "@/app/[locale]/choose-apartment/apartment-pdf";
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const block = searchParams.get("block");

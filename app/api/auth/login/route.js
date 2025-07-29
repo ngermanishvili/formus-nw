@@ -4,6 +4,10 @@ import { NextResponse } from "next/server";
 import crypto from 'crypto';
 import { SignJWT } from 'jose';
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
+
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function POST(request) {

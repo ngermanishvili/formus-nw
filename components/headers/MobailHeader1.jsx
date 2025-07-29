@@ -40,9 +40,10 @@ const MobileHeader = ({ routes, languageNames }) => {
     router.push(getLocalizedPath(newLocale));
   };
 
-  const scrollToFooter = (e) => {
+  const handlePhoneClick = (e) => {
     e.preventDefault();
-    document.querySelector("footer")?.scrollIntoView({ behavior: "smooth" });
+    // Direct call functionality - no scrolling
+    window.location.href = "tel:+995593939093";
   };
 
   const handleChooseHomeClick = (e, routePath) => {
@@ -96,11 +97,11 @@ const MobileHeader = ({ routes, languageNames }) => {
                 <span>{languageNames[locale]}</span>
               </button>
               <a
-                onClick={scrollToFooter}
-                href="tel:+995123456789"
-                className="text-white hover:text-[#f94011] transition-colors p-2"
+                onClick={handlePhoneClick}
+                href="tel:+995593939093"
+                className="text-white hover:text-[#f94011] transition-colors p-0.5"
               >
-                <Phone size={20} />
+                <Phone size={15} />
               </a>
             </div>
           </div>
